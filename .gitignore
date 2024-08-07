@@ -1,0 +1,30 @@
+# Java compiled files
+*.class
+
+# Java build directories
+/bin/
+/build/
+/out/
+
+# JAR and WAR files
+*.jar
+*.war
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Maven and Gradle build directories
+target/
+.gradle/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Ignore the Java source directory
+/src/
