@@ -29,7 +29,7 @@ M, N과 K 그리고 K개의 직사각형의 좌표가 주어질 때, K개의 직
 
 `int[m][n] map`에 모눈종이 입력.  
 (x1, y1) ~ (x2, y2)에 직사각형을 `1`로 입력. 이 때, (x2, y2)는 각각 1씩 빼주고 입력.  
-`map`을 루프하면서 방문하지 않은 경우, connected component 크기 탐색.
+`map`을 루프하면서 방문하지 않은 경우, BFS를 활용해 connected component 크기 탐색.
 
 ## 문제 해결 과정
 
@@ -37,7 +37,11 @@ M, N과 K 그리고 K개의 직사각형의 좌표가 주어질 때, K개의 직
     - 모눈종이에 직사각형을 입력할 때, 두 번째 (x2, y2) 입력을 주의하는 것이 핵심.
         - 우측 상단의 직사각형 좌표이므로, 범위 초과가 나지 않도록 그 직전까지 채워주는 것이 중요함.
         - 정답 도출에는 상관없지만, (x, y)를 (r, c) 형태로 치환하여 채워지는 모눈종이는 상하 반전된 모습.
+    - BFS를 활용하여, 방문하지 않은 모눈종이일 때 연결된 모든 범위를 탐색한 뒤, 그 넓이를 `list`에 추가.
     - 시간 복잡도는 O(m * n * k) 인데 모두 100 이하이므로 쉽게 통과.
+- 다른 해결 방법:
+    - connected component이므로 DFS를 활용해서도 풀어보았다.
+    - 크게 달라진 것은 없고, `cnt`를 따로 카운팅하기 보다는 `list.size()`로 해결.
 
 ## 다른 코드
 
@@ -45,14 +49,12 @@ M, N과 K 그리고 K개의 직사각형의 좌표가 주어질 때, K개의 직
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Queue;
 
 public class Solution {
 
-    static int m, n, k, cnt;
+    static int m, n, k;
     static int[][] map;
     static ArrayList<Integer> list;
     static int[] dr = {0, 0, 1, -1};
@@ -78,42 +80,34 @@ public class Solution {
                 }
             }
         }
-        cnt = 0;
         list = new ArrayList<>();
 
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 if (map[i][j] == 0) {
-                    bfs(i, j);
-                    cnt++;
+                    list.add(dfs(i, j));
                 }
             }
         }
 
         Collections.sort(list);
-        sb.append(cnt).append("\n");
+        sb.append(list.size()).append("\n");
         for (int i : list) {
             sb.append(i).append(" ");
         }
         System.out.println(sb);
     }
 
-    static void bfs(int r, int c) {
-        Queue<int[]> q = new ArrayDeque<>();
+    static int dfs(int r, int c) {
         map[r][c] = 1;
         int ret = 1;
-        q.offer(new int[]{r, c});
-        while (!q.isEmpty()) {
-            int[] cur = q.poll();
-            for (int i = 0; i < 4; i++) {
-                int nr = cur[0] + dr[i];
-                int nc = cur[1] + dc[i];
-                if (nr < 0 || nr >= m || nc < 0 || nc >= n || map[nr][nc] == 1) continue;
-                map[nr][nc] = 1;
-                ret++;
-                q.offer(new int[]{nr, nc});
-            }
+        for (int i = 0; i < 4; i++) {
+            int nr = r + dr[i];
+            int nc = c + dc[i];
+            if (nr < 0 || nr >= m || nc < 0 || nc >= n || map[nr][nc] == 1) continue;
+            ret += dfs(nr, nc);
         }
-        list.add(ret);
+        return ret;
     }
-}```
+}
+```
