@@ -20,10 +20,10 @@ public class Solution {
         mapIdx = new HashMap<>();
         words = br.readLine().split(" ");
         for (int i = 0; i < n; i++) {
-            int num = Integer.parseInt(words[i]);
-            map.put(num, map.getOrDefault(num, 0) + 1);
-            if (!mapIdx.containsKey(num)) {
-                mapIdx.put(num, i);
+            int cur = Integer.parseInt(words[i]);
+            map.put(cur, map.getOrDefault(cur, 0) + 1);
+            if (!mapIdx.containsKey(cur)) {
+                mapIdx.put(cur, i);
             }
         }
 
@@ -33,10 +33,9 @@ public class Solution {
             return map.get(o2) - map.get(o1);
         });
 
-        for (int num : list) {
-            int freq = map.get(num);
-            for (int j = 0; j < freq; j++) {
-                sb.append(num).append(" ");
+        for (int cur : list) {
+            for (int j = 0; j < map.get(cur); j++) {
+                sb.append(cur).append(" ");
             }
         }
         System.out.println(sb);
