@@ -35,7 +35,7 @@ public class Solution {
                 flag = true;
                 break;
             }
-ㅠ
+
             int size = q.size();
             for (int i = 0; i < size; i++) {
                 int cur = q.poll();
