@@ -76,3 +76,61 @@ public class Solution {
     }
 }
 ```
+
+## 다른 코드 2
+
+```java
+public class Solution {
+
+    static int sum = 0;
+    static int[] arr;
+    static StringBuilder sb;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        sb = new StringBuilder();
+        arr = new int[9];
+        for (int i = 0; i < 9; i++) {
+            arr[i] = Integer.parseInt(br.readLine());
+            sum += arr[i];
+        }
+        Arrays.sort(arr);
+
+        perm(9, 7, 0);
+    }
+
+    static void perm(int n, int r, int depth) {
+        if (r == depth) {
+            calc();
+            return;
+        }
+
+        for (int i = depth; i < n; i++) {
+            swap(i, depth);
+            perm(n, r, depth + 1);
+            swap(i, depth);
+        }
+    }
+
+    static void calc() {
+        int cur = 0;
+        for (int i = 0; i < 7; i++) {
+            cur += arr[i];
+        }
+        if (cur == 100) {
+            for (int i = 0; i < 7; i++) {
+                sb.append(arr[i]).append("\n");
+            }
+            System.out.println(sb.toString());
+            System.exit(0);
+        }
+    }
+
+    static void swap(int idx1, int idx2) {
+        int tmp = arr[idx1];
+        arr[idx1] = arr[idx2];
+        arr[idx2] = tmp;
+    }
+}
+```
+
