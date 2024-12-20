@@ -91,3 +91,46 @@ public class Solution {
     }
 }
 ```
+
+## 다시 푼 코드
+
+```java
+public class Solution {
+
+    static int[] cnt;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        cnt = new int[26];
+        char[] arr = br.readLine().toCharArray();
+        for (char c : arr) {
+            cnt[c - 'A']++;
+        }
+        char mid = 0;
+        boolean flag = false;
+
+        for (int i = 25; i >= 0; i--) {
+            char cur = (char) (i + 'A');
+            if (cnt[i] % 2 == 1) {
+                if (flag) {
+                    System.out.println("I'm Sorry Hansoo");
+                    return;
+                }
+                flag = true;
+                mid = cur;
+                cnt[i]--;
+            }
+            for (int j = 0; j < cnt[i] / 2; j++) {
+                sb.insert(0, cur);
+                sb.append(cur);
+            }
+        }
+
+        if (mid != 0) {
+            sb.insert(arr.length / 2, mid);
+        }
+        System.out.println(sb.toString());
+    }
+}
+```
