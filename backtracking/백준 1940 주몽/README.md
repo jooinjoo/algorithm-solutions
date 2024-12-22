@@ -40,6 +40,8 @@ Set에서 하나씩 뽑아, 더했을 때 M을 만들 수 있는 재료가 Set�
     - 2개 조합이기 때문에, 재귀 메서드보단 2중 for문을 사용.
         - 조합의 총 개수가 3개까지는 쉽게 다중 for문을 사용하는 것을 생각.
         - 또한 시간복잡도의 단축을 위해, 가능한 종료 조건도 적어주면 좋다.
+- 24.12.22. 다시 푼 방법:
+  - 이전 최종 해결 방법과 동일하게, 각 재료마다 루프하며 Map을 활용해 가능한 조합이 있는지 확인하여 풀이.
 
 ## 다른 코드
 
@@ -73,6 +75,30 @@ public class Solution {
             }
         }
         System.out.println(cnt);
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int n = Integer.parseInt(br.readLine());
+        int m = Integer.parseInt(br.readLine());
+        int cnt = 0;
+        Set<Integer> set = new HashSet<>();
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+        for (int i = 0; i < n; i++) {
+            set.add(Integer.parseInt(st.nextToken()));
+        }
+
+        for (int i : set) {
+            if (set.contains(m - i)) cnt++;
+        }
+        System.out.println(cnt / 2);
     }
 }
 ```
