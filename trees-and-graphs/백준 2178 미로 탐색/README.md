@@ -32,3 +32,63 @@ N×M크기의 배열로 표현되는 미로가 있다.
     - 미로의 시작점에서 목표까지 최단 경로를 구해야 하기 때문에, 큐를 이용한 BFS 탐색.
         - 미로를 그래프의 노드와 엣지로 가정, 가중치도 1로 동일. 각 노드는 `map[y][x]` 값에 해당한다.
         - 노드의 값이 1일 때만 이동 가능하며, 다음 노드로 이동할 경우 현재 노드의 +1 만큼 값을 갱신하며 방문 처리까지 수행.
+- 25.1.22. 다시 푼 방법:
+    - 시작점부터 가중치 1을 전제로 동서남북으로 1일 때만 이동하며 카운팅.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Solution {
+
+    static int N, M, ans;
+    static int[][] map;
+    static int[] dr = {0, 0, 1, -1};
+    static int[] dc = {1, -1, 0, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        N = Integer.parseInt(tok[0]);
+        M = Integer.parseInt(tok[1]);
+        ans = 0;
+        map = new int[N][M];
+        for (int i = 0; i < N; i++) {
+            String s = br.readLine();
+            for (int j = 0; j < M; j++) {
+                map[i][j] = s.charAt(j) - '0';
+            }
+        }
+
+        Queue<Pos> q = new LinkedList<>();
+        q.offer(new Pos(0, 0));
+        while (!q.isEmpty()) {
+            Pos cur = q.poll();
+            if (cur.r == N - 1 && cur.c == M - 1) break;
+
+            for (int i = 0; i < 4; i++) {
+                int nr = cur.r + dr[i];
+                int nc = cur.c + dc[i];
+                if (nr < 0 || nc < 0 || nr >= N || nc >= M || map[nr][nc] != 1) continue;
+                map[nr][nc] = map[cur.r][cur.c] + 1;
+                q.offer(new Pos(nr, nc));
+            }
+        }
+        System.out.println(map[N - 1][M - 1]);
+    }
+
+    static class Pos {
+        int r, c;
+
+        public Pos(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+    }
+}
+```
