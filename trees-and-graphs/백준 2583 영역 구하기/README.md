@@ -42,6 +42,9 @@ M, N과 K 그리고 K개의 직사각형의 좌표가 주어질 때, K개의 직
 - 다른 해결 방법:
     - connected component이므로 DFS를 활용해서도 풀어보았다.
     - 크게 달라진 것은 없고, `cnt`를 따로 카운팅하기 보다는 `list.size()`로 해결.
+- 25.1.27. 다시 푼 방법:
+    - 모눈종이의 상하를 반전하여, 해당하는 직사각형들만큼 방문처리.
+    - 이후 루프하며 방문하지 않은 컴포넌트의 개수를 카운팅하며, bfs를 통해 각 컴포넌트의 넓이 구하기.
 
 ## 다른 코드
 
@@ -108,6 +111,93 @@ public class Solution {
             ret += dfs(nr, nc);
         }
         return ret;
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Solution {
+
+    static int N, M, K, ans;
+    static boolean[][] map;
+    static int[] dr = {0, 0, 1, -1};
+    static int[] dc = {1, -1, 0, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        String[] tok = br.readLine().split(" ");
+        M = Integer.parseInt(tok[0]);
+        N = Integer.parseInt(tok[1]);
+        K = Integer.parseInt(tok[2]);
+        map = new boolean[M][N];
+        while (K-- > 0) {
+            tok = br.readLine().split(" ");
+            int c1 = Integer.parseInt(tok[0]);
+            int r1 = Integer.parseInt(tok[1]);
+            int c2 = Integer.parseInt(tok[2]) - 1;
+            int r2 = Integer.parseInt(tok[3]) - 1;
+            for (int i = r1; i <= r2; i++) {
+                for (int j = c1; j <= c2; j++) {
+                    map[i][j] = true;
+                }
+            }
+        }
+
+        ArrayList<Integer> vals = new ArrayList<>();
+        for (int i = 0; i < M; i++) {
+            for (int j = 0; j < N; j++) {
+                if (!map[i][j]) {
+                    ans++;
+                    vals.add(bfs(i, j));
+                }
+            }
+        }
+        Collections.sort(vals);
+        sb.append(ans).append("\n");
+        for (int v : vals) {
+            sb.append(v).append(" ");
+        }
+        System.out.println(sb.toString());
+    }
+
+    static int bfs(int r, int c) {
+        int cnt = 0;
+        Queue<Pos> q = new LinkedList<>();
+        map[r][c] = true;
+        q.offer(new Pos(r, c));
+        while (!q.isEmpty()) {
+            Pos cur = q.poll();
+            cnt++;
+            for (int i = 0; i < 4; i++) {
+                int nr = cur.r + dr[i];
+                int nc = cur.c + dc[i];
+                if (nr < 0 || nc < 0 || nr >= M || nc >= N || map[nr][nc]) continue;
+                map[nr][nc] = true;
+                q.offer(new Pos(nr, nc));
+            }
+        }
+
+        return cnt;
+    }
+
+    static class Pos {
+        int r, c;
+
+        public Pos(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
     }
 }
 ```
