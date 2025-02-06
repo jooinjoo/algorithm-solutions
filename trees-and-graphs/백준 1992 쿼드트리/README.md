@@ -42,6 +42,11 @@ N이 최대 64이므로, 시간 복잡도 O(N^2 * logN)으로 충분히 통과.
 - 다른 해결 방법:
     - 기존 해결 방법과 논리는 동일하지만, `dfs()`를 String 타입을 반환하도록 변경.
     - `size = 1`인 경우의 종료 기저 사례를 구현하고, 반환 String 객체를 누적하는 방식으로 구현.
+- 25.2.6. 다시 푼 방법:
+    - 네 개의 사분면마다 분할정복을 활용해, 시작점, 사이즈의 변수만 변화하는 재귀 함수를 구현.
+        - 시작점부터 사이즈 * 사이즈 만큼 탐색하며 해당 정사각형이 모두 같은 값인지 확인. 같으면 그대로 출력.
+        - 다르면 ( ) 를 입력한 뒤, 괄호 사이에 다시 재귀 함수를 통해 입력.
+    - 분할정복은 동일한 로직을, 달라지는 변수가 무엇인지에 집중해야 한다.
 
 ## 다른 코드
 
@@ -92,6 +97,66 @@ public class Solution {
             return sb.toString();
         }
         return String.valueOf(base);
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    static int[][] board;
+    static StringBuilder sb;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        sb = new StringBuilder();
+        int N = Integer.parseInt(br.readLine());
+        board = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            String s = br.readLine();
+            for (int j = 0; j < N; j++) {
+                board[i][j] = s.charAt(j) - '0';
+            }
+        }
+
+        func(0, 0, N);
+        System.out.println(sb.toString());
+    }
+
+    static void func(int r, int c, int size) {
+        int cur = board[r][c];
+
+        if (size == 1) {
+            sb.append(cur);
+            return;
+        }
+
+        if (check(r, c, size)) {
+            sb.append(cur);
+        } else {
+            sb.append("(");
+            int nSize = size / 2;
+            func(r, c, nSize);
+            func(r, c + nSize, nSize);
+            func(r + nSize, c, nSize);
+            func(r + nSize, c + nSize, nSize);
+            sb.append(")");
+        }
+    }
+
+    static boolean check(int r, int c, int size) {
+        for (int i = r; i < r + size; i++) {
+            for (int j = c; j < c + size; j++) {
+                if (board[i][j] != board[r][c]) return false;
+            }
+        }
+        return true;
     }
 }
 ```
