@@ -36,6 +36,9 @@
     - `n`은 전체 원소의 개수, `r`은 선택할 원소의 개수, `depth`는 현재 탐색의 깊이(몇 번째 원소를 선택하고 있는지)
         - `r`이 `depth`와 같아지면 정답인지 검사.
         - 정답이 아니라면, `a[i]`와 `a[depth]`를 바꾸어 `depth` 위치에 `i`번째 원소를 배치.
+- 25.6.23. 다시 푼 방법:
+    - 9개에서 원소 2개씩 뽑는 조합의 개수가 $_9C_2 = 36$으로 반복이 매우 작으므로 이중 for문 사용.
+    - 한편 나머지 7개 원소를 직접 더하여 100이 되는지 검사했는데, 이런 방법이 아니라 처음에 전체 합을 구한 뒤 2개씩 뽑은 조합의 합을 빼주는게 더 좋을 것 같다.
 
 ## 다른 코드 1
 
@@ -134,3 +137,46 @@ public class Solution {
 }
 ```
 
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+
+public class Solution {
+
+    static int[] input;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        input = new int[9];
+        for (int i = 0; i < 9; i++) input[i] = Integer.parseInt(br.readLine());
+
+        Arrays.sort(input);
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = i + 1; j < 9; j++) {
+                if (solve(i, j) == 100) {
+                    for (int k = 0; k < 9; k++) {
+                        if (k != i && k != j) sb.append(input[k]).append("\n");
+                    }
+                    System.out.println(sb.toString());
+                    return;
+                }
+            }
+        }
+    }
+
+    static int solve(int a, int b) {
+        int ret = 0;
+        for (int i = 0; i < 9; i++) {
+            if (i == a || i == b) continue;
+            ret += input[i];
+        }
+        return ret;
+    }
+}
+```
