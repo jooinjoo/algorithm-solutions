@@ -37,4 +37,37 @@
     - 첫 번째 글자만 따서, `int[] arr`에 알파벳 카운팅.
         - 이후 아스키 코드 값을 다시 `char` 타입으로 변환.
     - 알파벳 관련 문제는 대부분 카운팅으로 일단 접근해보면 좋을 법하다.
+- 25.6.24. 다시 푼 방법:
+    - 선발 가능한 알파벳은 5개 이상 카운팅되어야 한다. 따라서 `int[] cnt`를 통해 앞 글자만 판별하여 카운팅.
+    - 모든 알파벳의 카운팅 후, `cnt`의 원소 값이 5 이상인 인덱스에 대해서만 `StringBuilder sb`에 출력.
+        - 한편 `isEmpty()` 메서드는 `String` 타입에서만 가능하다. `StringBuilder`타입에서 변환하지 않으면 컴파일 에러.
 
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    static int[] cnt = new int[26];
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        int N = Integer.parseInt(br.readLine());
+        while (N-- > 0) {
+            char ch = br.readLine().charAt(0);
+            cnt[ch - 97]++;
+        }
+
+        for (int i = 0; i < cnt.length; i++) {
+            if (cnt[i] >= 5) sb.append((char) (i + 97));
+        }
+
+        if (sb.toString().isEmpty()) System.out.println("PREDAJA");
+        else System.out.println(sb.toString());
+    }
+}
+```
