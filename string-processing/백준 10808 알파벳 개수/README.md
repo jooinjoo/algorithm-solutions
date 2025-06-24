@@ -26,3 +26,29 @@
 - 최종 해결 방법:
     - 입력받은 소문자 문자열을 아스키 코드로 변환하여 알파벳 `a`, 즉 65만큼 빼주면 모든 알파벳은 0~26 범위에 존재하게 된다.
     - 해당 인덱스 값을 루프하며 카운팅.
+- 25.6.24. 다시 푼 방법:
+    - 알파벳 26개를 카운팅하는 배열 `cnt[]`에 `input`을 루프하며 각각 카운팅.
+    - 아스키 코드에서 2가지만 외우자. A는 65, a는 97.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    static int[] cnt = new int[26];
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        char[] input = br.readLine().toCharArray();
+
+        for (char c : input) cnt[c - 97]++;
+        for (int i : cnt) sb.append(i).append(" ");
+        System.out.println(sb.toString());
+    }
+}
+```
