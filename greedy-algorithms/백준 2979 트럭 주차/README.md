@@ -36,3 +36,41 @@ A, B, C가 주어지고, 상근이의 트럭이 주차장에 주차된 시간이
 - 최종 해결 방법:
     - `int[] cnt` 배열의 각 인덱스는 해당 시간에 존재하는 트럭의 수다.
     - 따라서 각 트럭 별로 시작 시간, 종료 시간에 따라 `cnt` 배열에 주차된 인덱스 시간에 카운팅.
+- 25.6.24. 다시 푼 방법:
+    - `int[] cnt` 배열에 각 시간마다 존재하는 트럭 수 카운팅.
+        - 주차한 시간, 즉 시작 시간의 바로 다음 시간부터 카운팅하는 것이 핵심. 시작 시간 + 1 ~ 끝 시간까지 카운팅한다.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    static int[] cnt = new int[101];
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] input = br.readLine().split(" ");
+        int a = Integer.parseInt(input[0]);
+        int b = Integer.parseInt(input[1]);
+        int c = Integer.parseInt(input[2]);
+        for (int i = 0; i < 3; i++) {
+            input = br.readLine().split(" ");
+            int lt = Integer.parseInt(input[0]) + 1;
+            int rt = Integer.parseInt(input[1]);
+            for (int j = lt; j <= rt; j++) cnt[j]++;
+        }
+
+        int ans = 0;
+        for (int i : cnt) {
+            if (i == 1) ans += a;
+            else if (i == 2) ans += 2 * b;
+            else if (i == 3) ans += 3 * c;
+        }
+        System.out.println(ans);
+    }
+}
+```
