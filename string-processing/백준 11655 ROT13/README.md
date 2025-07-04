@@ -35,3 +35,35 @@ ROT13 변환은 두 가지 기준에 따라 적용된다. 1) 글자가 대문자
     - `c`가 알파벳이 아닌 경우 바로 출력
         - 알파벳인 경우, 대문자 또는 소문자인 경우에 따라 변환.
         - `c`가 알파벳의 몇 번째 위치인지 구한 뒤, +13. 이후 전체 알파벳 26글자로 나눠, 알파벳 인덱스 0~25 순환
+- 25.7.4. 다시 푼 방법:
+    - 입력값을 `char[] input` 배열로 바꾼 후, 한 글자씩 루프하며 판별.
+    - 해당 글자가 알파벳인 경우와 아닌 경우로 나눠 알파벳인 경우 중간값인 `'M'`을 기준으로 13만큼 뒤로 밀거나 앞으로 당긴다.
+        - 알파벳이 26개이므로 +13으로 알파벳 범위를 넘어가면, 반대로 -13만큼 빼주면 된다.
+
+### 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        char[] input = br.readLine().toCharArray();
+
+        for (char c : input) {
+            if (Character.isAlphabetic(c)) {
+                if (c < 'a') {
+                    sb.append(c <= 'M' ? (char) (c + 13) : (char) (c - 13));
+                } else {
+                    sb.append(c <= 'm' ? (char) (c + 13) : (char) (c - 13));
+                }
+            } else sb.append(c);
+        }
+        System.out.println(sb.toString());
+    }
+}
+```
