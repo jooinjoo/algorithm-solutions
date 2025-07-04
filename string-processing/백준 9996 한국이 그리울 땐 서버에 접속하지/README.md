@@ -51,3 +51,35 @@ ad", "anestonestod"는 모두 패턴 "a*d"와 일치한다. 하지만, "bcd"는 
             - e.g. 문자열: `ab` / 패턴: `ab*ab`
             - 앞, 뒤 패턴 `ab`는 모두 통과하지만, 최소한 문자열은 `abab`여야 한다.
     - 이후 `startsWith()`과 `endsWith()`을 활용해 검증.
+- 25.7.4. 다시 푼 방법:
+    - 문자열이 주어지면, 해당 문자열의 처음과 끝 종료 조건을 `startsWith()`과 `endsWith()`을 사용하여 검증.
+    - 한편 첫 시도에 틀렸는데, 문제를 제대로 확인하지 않아 `*` 사이에 무조건 문자가 있어야 한다고 해석. 문제를 좀 더 꼼꼼히 읽자.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        int N = Integer.parseInt(br.readLine());
+        String[] pattern = br.readLine().split("\\*");
+
+        while (N-- > 0) {
+            String input = br.readLine();
+            if (input.length() >= pattern[0].length() + pattern[1].length() &&
+                    input.startsWith(pattern[0]) && input.endsWith(pattern[1])) {
+                sb.append("DA\n");
+            } else {
+                sb.append("NE\n");
+            }
+        }
+        System.out.println(sb.toString());
+    }
+}
+```
