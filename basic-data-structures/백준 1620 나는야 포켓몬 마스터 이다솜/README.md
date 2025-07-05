@@ -112,3 +112,44 @@ ex) `Map.Entry`을 이용해 `entrySet()`을 활용하면, O(N) 시간복잡도 
 - 최종 해결 방법:
     - `Map<String, Integer> map1`와 `Map<Integer, String> map2`에 각각 <문자열, 인덱스> / <인덱스, 문자열> 입력
     - 이후 주어진 입력이 문자열인 경우 `map1`, 숫자인 경우 `map2`를 통해 O(1) 시간복잡도로 값 출력.
+- 25.7.5 다시 푼 방법:
+    - 두 개의 `Map`을 선언해, 하나는 인덱스/이름, 또 다른 하나는 이름/인덱스 형식으로 도감번호와 이름을 입력.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        String[] tok = br.readLine().split(" ");
+        int N = Integer.parseInt(tok[0]);
+        int M = Integer.parseInt(tok[1]);
+        Map<Integer, String> nmap = new HashMap<>();
+        Map<String, Integer> smap = new HashMap<>();
+        for (int i = 0; i < N; i++) {
+            String name = br.readLine();
+            nmap.put(i + 1, name);
+            smap.put(name, i + 1);
+        }
+
+        for (int i = 0; i < M; i++) {
+            String cur = br.readLine();
+            if (cur.charAt(0) >= 65) {
+                sb.append(smap.get(cur)).append("\n");
+            } else {
+                int idx = Integer.parseInt(cur);
+                sb.append(nmap.get(idx)).append("\n");
+            }
+        }
+        System.out.print(sb.toString());
+    }
+}
+```
