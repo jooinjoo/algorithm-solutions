@@ -47,6 +47,10 @@
 - 다른 해결 방법:
     - 거의 유사하긴 하지만, 구간합을 이용하여 풀이.
     - `int[] pSum`에 누적합을 저장한 뒤, 인덱스 K부터 N까지 구간합을 계산하고, 최댓값 갱신.
+- 25.7.5. 다시 푼 방법:
+    - 누적합 `int[] psum`을 활용.
+    - 각 날짜 별 온도 `int[] temps` 입력 시 동시에 해당 인덱스까지의 누적합을 `psum`에 기입.
+        - 이후 누적합의 인덱스 `K`부터 끝까지 루프하며 구간합을 구함.
 
 ## 다른 코드
 
@@ -71,6 +75,38 @@ public class Solution {
 
         for (int i = K; i < N + 1; i++) {
             ans = Math.max(ans, pSum[i] - pSum[i - K]);
+        }
+        System.out.println(ans);
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] input = br.readLine().split(" ");
+        int N = Integer.parseInt(input[0]);
+        int K = Integer.parseInt(input[1]);
+        input = br.readLine().split(" ");
+        int[] temps = new int[N];
+        int[] psum = new int[N + 1];
+        for (int i = 0; i < N; i++) {
+            temps[i] = Integer.parseInt(input[i]);
+            psum[i + 1] = psum[i] + temps[i];
+        }
+
+        int ans = Integer.MIN_VALUE;
+        for (int i = K; i < N + 1; i++) {
+            int cur = psum[i] - psum[i - K];
+            ans = Math.max(ans, cur);
         }
         System.out.println(ans);
     }
