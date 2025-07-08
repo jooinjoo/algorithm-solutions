@@ -33,3 +33,45 @@ n은 30이하이므로, 최대 2^30-1 경우의 수까지 가능.
     - 각 테스트마다 `Map<String, Integer> map`을 선언해 의상 종류를 키, 의상 수를 밸류로 삽입
     - 모든 의상을 넣은 후, `map.values()`를 통해 모든 의상 수를 루프하며 모든 경우의 수 구하기
         - 최종 값에 -1한 값 출력.
+- 25.7.8. 다시 푼 방법:
+    - 경우의 수로 접근. 옷을 입는 모든 경우의 수에서 아무것도 입지 않는 경우의 수 1가지만 빼주면 된다.
+        - 이 과정에서 각 옷마다 옷 종류를 키로 갖는 Map에 +1 씩 밸류값을 더한다.
+        - 이후 `Map.EntrySet()`을 활용해 키/밸류를 모두 가져오는 `Map.Entry`를 활용.
+    - 시간복잡도는 O(t * n)으로 최대 3,000 정도로 무난히 통과.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        int t = Integer.parseInt(br.readLine());
+        Map<String, Integer> map;
+        int n;
+        String[] tok;
+        while (t-- > 0) {
+            map = new HashMap<>();
+            n = Integer.parseInt(br.readLine());
+            for (int i = 0; i < n; i++) {
+                tok = br.readLine().split(" ");
+                map.put(tok[1], map.getOrDefault(tok[1], 0) + 1);
+            }
+
+            int ans = 1;
+            for (Map.Entry<String, Integer> entrySet : map.entrySet()) {
+                ans *= entrySet.getValue() + 1;
+            }
+            sb.append(ans - 1).append("\n");
+        }
+        System.out.println(sb.toString());
+    }
+}
+```
