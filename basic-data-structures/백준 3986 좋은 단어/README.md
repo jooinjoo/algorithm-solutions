@@ -34,7 +34,7 @@
         - 만약 같다면 스택에 넣지않고 top을 `pop()`, 다르다면 그대로 `push()`.
     - 모든 알파벳을 전부 순회했을 때, 스택이 비어있으면 좋은 단어.
     - "쌍", "짝짓기" 등의 키워드가 나온다면 일단 스택을 염두하자.
-- 25.1.9. 다시 푼 방법:
+- 25.7.10. 다시 푼 방법:
     - 이전 해결 방법과 동일하게, 스택을 활용하여 같다면 `pop()`, 다르면 `push()`한 뒤 최종 스택 조회
 
 ## 다시 푼 코드
@@ -50,12 +50,13 @@ public class Solution {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int N = Integer.parseInt(br.readLine());
-        int ans = 0;
-        Stack<Character> stk;
-        while (N-- > 0) {
-            stk = new Stack<>();
-            char[] chars = br.readLine().toCharArray();
-            for (char c : chars) {
+        Stack<Character> stk = new Stack<>();
+        int cnt = 0;
+
+        for (int i = 0; i < N; i++) {
+            stk.clear();
+            char[] input = br.readLine().toCharArray();
+            for (char c : input) {
                 if (!stk.isEmpty() && stk.peek() == c) {
                     stk.pop();
                 } else {
@@ -63,9 +64,9 @@ public class Solution {
                 }
             }
 
-            if (stk.isEmpty()) ans++;
+            if (stk.isEmpty()) cnt++;
         }
-        System.out.println(ans);
+        System.out.println(cnt);
     }
 }
 ```
