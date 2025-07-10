@@ -31,9 +31,9 @@
         - 예를 들어, 2^20 = 2^10 * 2^10 = 2^5 * 2^5 * 2^5 * 2^5 ... 이런 식으로 반복 횟수를 줄여나갈 수 있다.
         - 한편 현재 `b`가 홀수인 경우에는, 한번 더 `a`를 곱해주며 연산하도록 설정. ex) 2^5 = 2^2 * 2^2 * 2
     - 또한 수를 곱하다보면 일시적으로 int 범위보다 커지기에 long 타입을 사용.
-- 25.1.18. 다시 푼 방법:
+- 25.7.10. 다시 푼 방법:
     - 분할 정복을 이용하여, B가 1이 될 때까지 2로 나누면서 반복 횟수를 줄이기.
-        - 단순히 B번 반복한다면 시간 제한이 0.5초로 시간 초과가 날 수밖에 없다.(B가 21억 이하이기 때문)
+        - 단순히 B번 반복한다면 시간 제한이 0.5초로 시간 초과가 날 수밖에 없다.(B가 21억 이하로 반복 횟수가 시간 제한에 걸리기 때문)
     - 또한 모듈러 연산을 활용해 현재 B가 짝수인지 홀수인지에 따라 다르게 처리.
 
 
@@ -46,22 +46,27 @@ import java.io.InputStreamReader;
 
 public class Solution {
 
+    static int A, B, C;
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String[] tok = br.readLine().split(" ");
-        long A = Long.parseLong(tok[0]);
-        long B = Long.parseLong(tok[1]);
-        long C = Long.parseLong(tok[2]);
+        String[] input = br.readLine().split(" ");
+        A = Integer.parseInt(input[0]);
+        B = Integer.parseInt(input[1]);
+        C = Integer.parseInt(input[2]);
 
         System.out.println(recur(A, B, C));
     }
 
-    static long recur(long a, long b, long c) {
-        if (b == 1) return a % c;
+    static long recur(int A, int B, int C) {
+        if (B == 1) return A % C;
 
-        long tmp = recur(a, b / 2, c);
-        if (b % 2 == 0) return tmp * tmp % c;
-        else return (tmp * tmp % c) * a % c;
+        long tmp = recur(A, B / 2, C);
+        if (B % 2 == 1) {
+            return (tmp * tmp % C) * A % C;
+        } else {
+            return tmp * tmp % C;
+        }
     }
 }
 ```
