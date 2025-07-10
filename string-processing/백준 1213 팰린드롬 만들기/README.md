@@ -45,9 +45,14 @@
         - 예를 들어, 현재 알파벳이 `C`이고 `cnt['C' - 'A'] = 5`, 지금까지 출력이 `DEED`인 경우
         - `mid = 'C'`, `cnt['C' - 'A'] = 4`, 이후에 2번씩 양쪽에 `C`를 삽입하여 출력은 `CCDEEDCC`가 된다.
     - 그리고 위의 풀이와 같이 `mid` 값이 두 번 설정되면 팰린드롬 불가, 성립한다면 `mid` 값이 있을 때만 중간에 삽입하여 출력.
-- 24.12.21. 다시 푼 방법:
-    - 전체 문자열을 오름차순으로 정렬한 뒤, 뒤의 알파벳부터 시작해 양 옆으로 채워넣는 방식.
-    - 위의 다른 해결 방법과 거의 유사한 방식으로 풀이. 
+- 25.7.10. 다시 푼 방법:
+    - 전체 문자열을 오름차순으로 정렬한 뒤, 전체 길이가 짝수인 경우와 홀수인 경우로 나누어 풀이.
+        - 짝수인 경우 한 번이라도 두개씩 비교했을 때 서로 다르면 안되고, 홀수인 경우 두개씩 비교했을 때 한 번까지는 서로 달라도 된다.
+            - 만약 서로 다른 경우가 생기면 해당 값은 가운데에 삽입.
+    - 문제의 정답은 맞췄지만, 코드의 중복이 있어 좋지 못하다. 더 직관적인 방법으로는 알파벳 별로 카운팅한 값을 배열에 넣고 알파벳 `'Z'`부터 역으로 해당 카운팅 값이 존재하면 좌우로 채워넣는 방식이
+      있다.
+    - 팰린드롬이 되지 않는 경우는 전체 `input`길이에 상관없이 홀수 알파벳이 2개 이상일 때이다. 따라서 카운팅 배열 값이 홀수이면 해당 값을 `mid`에 넣고 하나 줄인 뒤 양쪽에 삽입 반복.
+    - 문제를 푼 것은 좋았으나 좀 더 직관적인 방법을 찾도록 노력해보자.
 
 ## 다른 코드
 
@@ -95,42 +100,60 @@ public class Solution {
 ## 다시 푼 코드
 
 ```java
-public class Solution {
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 
-    static int[] cnt;
+public class Solution {
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
-        cnt = new int[26];
-        char[] arr = br.readLine().toCharArray();
-        for (char c : arr) {
-            cnt[c - 'A']++;
-        }
-        char mid = 0;
-        boolean flag = false;
+        char[] input = br.readLine().toCharArray();
+        boolean flag = true;
 
-        for (int i = 25; i >= 0; i--) {
-            char cur = (char) (i + 'A');
-            if (cnt[i] % 2 == 1) {
-                if (flag) {
-                    System.out.println("I'm Sorry Hansoo");
-                    return;
+        Arrays.sort(input);
+        String mid = "";
+        if (input.length % 2 == 0) {
+            for (int i = 0; i < input.length; i += 2) {
+                if (input[i] != input[i + 1]) {
+                    flag = false;
+                    break;
                 }
-                flag = true;
-                mid = cur;
-                cnt[i]--;
+                sb.append(input[i]);
             }
-            for (int j = 0; j < cnt[i] / 2; j++) {
-                sb.insert(0, cur);
-                sb.append(cur);
+        } else {
+            for (int i = 0; i < input.length; i += 2) {
+                if (i == input.length - 1) {
+                    if (mid.isEmpty()) {
+                        mid = String.valueOf(input[i]);
+                    } else {
+                        flag = false;
+                    }
+                } else {
+                    if (input[i] == input[i + 1]) {
+                        sb.append(input[i]);
+                    } else {
+                        if (mid.isEmpty()) {
+                            mid = String.valueOf(input[i]);
+                            i--;
+                        } else {
+                            flag = false;
+                            break;
+                        }
+                    }
+                }
             }
         }
 
-        if (mid != 0) {
-            sb.insert(arr.length / 2, mid);
+        if (flag) {
+            String lt = sb.toString();
+            String rt = sb.reverse().toString();
+            System.out.println(lt + mid + rt);
+        } else {
+            System.out.println("I'm Sorry Hansoo");
         }
-        System.out.println(sb.toString());
     }
 }
 ```
