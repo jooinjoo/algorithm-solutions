@@ -33,9 +33,9 @@
         - `(tmp * 10 + 1) % n` = `((tmp * 10) % n + 1 % n) % n`. 여기서 바깥의 n은 생략할 수 있음.
             - 덧셈의 좌항은 `(tmp * 10) % n`에서 이미 n으로 나눈 나머지, 우항은 `1 % n`으로 그냥 1이므로.
         - 따라서 `tmp`의 연산 값은 `tmp = (tmp * 10) % n + 1`만 남게 된다.
-- 25.1.19. 다시 푼 방법:
-  - 모듈러 연산을 사용하여, `tmp`의 자릿수를 증가시키며 계산. 동일한 방법 사용.
-
+- 25.7.15. 다시 푼 방법:
+    - 모듈러 연산을 사용하여, `tmp`의 자릿수를 증가시키며 계산.
+    - 모듈러 연산의 과정에서 `tmp = tmp * 10 + 1;`, `tmp %= n;` 이렇게 두 구간으로 나누거나 `tmp = (tmp * 10) % n + 1;` 이렇게 한 줄로 표현해도 된다.
 
 ## 다시 푼 코드
 
@@ -44,27 +44,26 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class Solution {
+public class Main {
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
-        String s = "";
+        String input = "";
         int n;
-        while ((s = br.readLine()) != null) {
-            n = Integer.parseInt(s);
+
+        while ((input = br.readLine()) != null) {
+            n = Integer.parseInt(input);
             long tmp = 1;
             int cnt = 1;
-            while (true) {
-                if (tmp % n == 0) {
-                    sb.append(cnt).append(" ");
-                    break;
-                }
-                tmp = (tmp * 10 + 1) % n;
+
+            while (tmp % n != 0) {
+                tmp = (tmp * 10) % n + 1;
                 cnt++;
             }
+            sb.append(cnt).append("\n");
         }
-        System.out.println(sb);
+        System.out.println(sb.toString());
     }
 }
 ```
