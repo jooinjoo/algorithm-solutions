@@ -39,9 +39,9 @@ BFS를 통해 연결된 배추를 모두 탐색한 뒤, 해충 카운팅.
         - 크게 달라지는 부분은 없고, 직접 다음 노드의 `(r, c)`를 `dfs()` 메서드에 지정할 수 있어, `Pos` 객체를 쓰지 않아도 됨.
         - 한편 유의할 점으로 다음 노드의 `(nr, nc)`를 검증하는 과정에서 `map`의 범위를 먼저 검증한 뒤, `map[nr][nc]`이 배추인지 검증.
             - 이 순서를 지키지 않으면 `ArrayIndexOutOfBoundsException` 예외.
-- 25.1.25. 다시 푼 밥업:
-  - 전체 배추밭을 한번씩 탐색하여 배추를 심은 곳을 만날 때마다 BFS 탐색.
-  - 동서남북 방향으로 인접한 배추를 모두 체크한 뒤, 하나의 컴포넌트를 끝내고 카운팅.
+- 25.7.21. 다시 푼 방법:
+    - 전체 배추밭을 탐색하며 배추가 심어진 곳을 만나면 dfs 탐색 시작
+        - 동서남북 방향으로 인접한 배추를 모두 방문처리 한 뒤, 하나의 컴포넌트가 전부 방문처리되면 카운팅.
 
 ## 다른 코드
 
@@ -105,65 +105,54 @@ public class Solution {
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class Solution {
 
-    static int N, M, K, ans;
-    static boolean[][] map;
+    static int T, N, M, K, Y, X, cnt;
+    static boolean[][] board;
     static int[] dr = {0, 0, 1, -1};
     static int[] dc = {1, -1, 0, 0};
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
-        int T = Integer.parseInt(br.readLine());
-        while (T-- > 0) {
+        T = Integer.parseInt(br.readLine());
+        for (int i = 0; i < T; i++) {
             String[] tok = br.readLine().split(" ");
             M = Integer.parseInt(tok[0]);
             N = Integer.parseInt(tok[1]);
             K = Integer.parseInt(tok[2]);
-            ans = 0;
-            map = new boolean[N][M];
-            for (int i = 0; i < K; i++) {
+            board = new boolean[N][M];
+            for (int j = 0; j < K; j++) {
                 tok = br.readLine().split(" ");
-                int c = Integer.parseInt(tok[0]);
-                int r = Integer.parseInt(tok[1]);
-                map[r][c] = true;
+                X = Integer.parseInt(tok[0]);
+                Y = Integer.parseInt(tok[1]);
+                board[Y][X] = true;
             }
+            cnt = 0;
 
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < M; j++) {
-                    if (map[i][j]) {
-                        Queue<Pos> q = new LinkedList<>();
-                        ans++;
-                        map[i][j] = false;
-                        q.offer(new Pos(i, j));
-                        while (!q.isEmpty()) {
-                            Pos cur = q.poll();
-                            for (int k = 0; k < 4; k++) {
-                                int nr = cur.r + dr[k];
-                                int nc = cur.c + dc[k];
-                                if (nr < 0 || nc < 0 || nr >= N || nc >= M || !map[nr][nc]) continue;
-                                map[nr][nc] = false;
-                                q.offer(new Pos(nr, nc));
-                            }
-                        }
+            for (int j = 0; j < N; j++) {
+                for (int k = 0; k < M; k++) {
+                    if (board[j][k]) {
+                        board[j][k] = false;
+                        dfs(j, k);
+                        cnt++;
                     }
                 }
             }
-            sb.append(ans).append("\n");
+            sb.append(cnt).append("\n");
         }
+
         System.out.println(sb.toString());
     }
 
-    static class Pos {
-        int r, c;
-
-        public Pos(int r, int c) {
-            this.r = r;
-            this.c = c;
+    static void dfs(int r, int c) {
+        for (int i = 0; i < 4; i++) {
+            int nr = r + dr[i];
+            int nc = c + dc[i];
+            if (nr < 0 || nc < 0 || nr == N || nc == M || !board[nr][nc]) continue;
+            board[nr][nc] = false;
+            dfs(nr, nc);
         }
     }
 }
