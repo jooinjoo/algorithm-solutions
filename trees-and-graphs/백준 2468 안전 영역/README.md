@@ -65,5 +65,59 @@
         - 예를 들어 높이가 [3, 5, 7] 세 가지인 경우, 높이가 3일 때와 4일 때의 안전 영역은 같을 수밖에 없다. 따라서 의미없는 경우 제거.
     - 또한 처음에는 직접 현재 `cur` 이하인 경우를 전부 `vis`에 체크한 뒤 `dfs()`를 진행했는데, 그럴 필요 없이 `dfs()`에 `cur`을 depth로 넘겨 조건에 맞게 진행해도 된다.
         - 아예 `map[i][j] <= cur`인 경우는 갈 수조차 없게 설정하면 굳이 따로 방문 처리할 필요가 없음.
-- 25.1.26. 다시 푼 방법:
-    - 물이 잠기는 높이를 2~100까지 루프하며, 각 높이마다 dfs를 통해 `map`에 존재하는 컴포넌트 개수를 갱신.
+- 25.7.22. 다시 푼 방법:
+    - 물이 잠기는 높이를 0~100까지 루프하며, 각 높이마다 dfs를 통해 `map`에 존재하는 컴포넌트 개수를 갱신.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    static int N, ans = 1;
+    static int[][] board;
+    static boolean[][] vis;
+    static int[] dr = {0, 0, 1, -1};
+    static int[] dc = {1, -1, 0, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        board = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            String[] tok = br.readLine().split(" ");
+            for (int j = 0; j < N; j++) {
+                board[i][j] = Integer.parseInt(tok[j]);
+            }
+        }
+
+        for (int i = 0; i <= 100; i++) {
+            int tmp = 0;
+            vis = new boolean[N][N];
+            for (int j = 0; j < N; j++) {
+                for (int k = 0; k < N; k++) {
+                    if (vis[j][k] || board[j][k] <= i ) continue;
+                    vis[j][k] = true;
+                    dfs(j, k, i);
+                    tmp++;
+                }
+            }
+            ans = Math.max(ans, tmp);
+        }
+        System.out.println(ans);
+    }
+
+    static void dfs(int r, int c, int num) {
+        for (int i = 0; i < 4; i++) {
+            int nr = r + dr[i];
+            int nc = c + dc[i];
+            if (nr < 0 || nc < 0 || nr >= N || nc >= N || vis[nr][nc] || board[nr][nc] <= num) continue;
+            vis[nr][nc] = true;
+            dfs(nr, nc, num);
+        }
+    }
+}
+```
