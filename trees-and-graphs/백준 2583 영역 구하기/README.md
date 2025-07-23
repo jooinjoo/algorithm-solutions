@@ -42,9 +42,11 @@ M, N과 K 그리고 K개의 직사각형의 좌표가 주어질 때, K개의 직
 - 다른 해결 방법:
     - connected component이므로 DFS를 활용해서도 풀어보았다.
     - 크게 달라진 것은 없고, `cnt`를 따로 카운팅하기 보다는 `list.size()`로 해결.
-- 25.1.27. 다시 푼 방법:
+- 25.7.23. 다시 푼 방법:
     - 모눈종이의 상하를 반전하여, 해당하는 직사각형들만큼 방문처리.
-    - 이후 루프하며 방문하지 않은 컴포넌트의 개수를 카운팅하며, bfs를 통해 각 컴포넌트의 넓이 구하기.
+    - 모든 모눈종이를 한번씩 루프하며, 방문하지 않은 영역을 만나면 몇 번째 분리된 영역인지 `cnt`에 카운팅한 뒤, `bfs()`로 해당 영역 탐색.
+        - `bfs()`의 리턴값을 통해 해당 영역이 얼마나 넓은 지 `list`에 저장한다.
+        - 모든 영역 방문이 끝나면 `list`를 정렬한 뒤 출력.
 
 ## 다른 코드
 
@@ -128,8 +130,8 @@ import java.util.Queue;
 
 public class Solution {
 
-    static int N, M, K, ans;
-    static boolean[][] map;
+    static int M, N, K, cnt = 0;
+    static boolean[][] board;
     static int[] dr = {0, 0, 1, -1};
     static int[] dc = {1, -1, 0, 0};
 
@@ -140,55 +142,54 @@ public class Solution {
         M = Integer.parseInt(tok[0]);
         N = Integer.parseInt(tok[1]);
         K = Integer.parseInt(tok[2]);
-        map = new boolean[M][N];
-        while (K-- > 0) {
+        board = new boolean[M][N];
+        for (int i = 0; i < K; i++) {
             tok = br.readLine().split(" ");
-            int c1 = Integer.parseInt(tok[0]);
-            int r1 = Integer.parseInt(tok[1]);
-            int c2 = Integer.parseInt(tok[2]) - 1;
-            int r2 = Integer.parseInt(tok[3]) - 1;
-            for (int i = r1; i <= r2; i++) {
-                for (int j = c1; j <= c2; j++) {
-                    map[i][j] = true;
+            int x1 = Integer.parseInt(tok[0]);
+            int y1 = Integer.parseInt(tok[1]);
+            int x2 = Integer.parseInt(tok[2]);
+            int y2 = Integer.parseInt(tok[3]);
+            for (int j = y1; j < y2; j++) {
+                for (int k = x1; k < x2; k++) {
+                    board[j][k] = true;
                 }
             }
         }
 
-        ArrayList<Integer> vals = new ArrayList<>();
+        ArrayList<Integer> list = new ArrayList<>();
         for (int i = 0; i < M; i++) {
             for (int j = 0; j < N; j++) {
-                if (!map[i][j]) {
-                    ans++;
-                    vals.add(bfs(i, j));
-                }
+                if (board[i][j]) continue;
+                board[i][j] = true;
+                cnt++;
+                list.add(bfs(i, j));
             }
         }
-        Collections.sort(vals);
-        sb.append(ans).append("\n");
-        for (int v : vals) {
-            sb.append(v).append(" ");
+
+        sb.append(cnt).append("\n");
+        Collections.sort(list);
+        for (int i : list) {
+            sb.append(i).append(" ");
         }
         System.out.println(sb.toString());
     }
 
     static int bfs(int r, int c) {
-        int cnt = 0;
-        Queue<Pos> q = new LinkedList<>();
-        map[r][c] = true;
-        q.offer(new Pos(r, c));
-        while (!q.isEmpty()) {
-            Pos cur = q.poll();
-            cnt++;
+        Queue<Pos> que = new LinkedList<>();
+        que.offer(new Pos(r, c));
+        int ret = 1;
+        while (!que.isEmpty()) {
+            Pos cur = que.poll();
             for (int i = 0; i < 4; i++) {
                 int nr = cur.r + dr[i];
                 int nc = cur.c + dc[i];
-                if (nr < 0 || nc < 0 || nr >= M || nc >= N || map[nr][nc]) continue;
-                map[nr][nc] = true;
-                q.offer(new Pos(nr, nc));
+                if (nr < 0 || nc < 0 || nr >= M || nc >= N || board[nr][nc]) continue;
+                board[nr][nc] = true;
+                ret++;
+                que.offer(new Pos(nr, nc));
             }
         }
-
-        return cnt;
+        return ret;
     }
 
     static class Pos {
