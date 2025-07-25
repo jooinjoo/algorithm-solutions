@@ -42,10 +42,12 @@ N이 최대 64이므로, 시간 복잡도 O(N^2 * logN)으로 충분히 통과.
 - 다른 해결 방법:
     - 기존 해결 방법과 논리는 동일하지만, `dfs()`를 String 타입을 반환하도록 변경.
     - `size = 1`인 경우의 종료 기저 사례를 구현하고, 반환 String 객체를 누적하는 방식으로 구현.
-- 25.2.6. 다시 푼 방법:
-    - 네 개의 사분면마다 분할정복을 활용해, 시작점, 사이즈의 변수만 변화하는 재귀 함수를 구현.
-        - 시작점부터 사이즈 * 사이즈 만큼 탐색하며 해당 정사각형이 모두 같은 값인지 확인. 같으면 그대로 출력.
-        - 다르면 ( ) 를 입력한 뒤, 괄호 사이에 다시 재귀 함수를 통해 입력.
+- 25.7.26. 다시 푼 방법:
+    - 네 개의 사분면에 분할정복을 적용. `dfs()` 재귀함수에 시작위치, 쿼드트리 검증 사이즈를 넣는다.
+        - 현재 검증 사이즈가 1이 되면 무조건 종료. 시작위치 값을 그대로 출력.
+        - 검증 사이즈가 1보다 크면 쿼드트리 체크. `check()` 함수를 통해 시작위치와 모든 범위가 같은 값인지 확인.
+            - 모두 같으면 그대로 값을 출력.
+            - 같지 않으면 괄호 값을 출력한 뒤, 다시 사분면으로 나누어 분할정복 재귀함수 반복.
     - 분할정복은 동일한 로직을, 달라지는 변수가 무엇인지에 집중해야 한다.
 
 ## 다른 코드
@@ -110,50 +112,50 @@ import java.io.InputStreamReader;
 
 public class Solution {
 
+    static int N;
     static int[][] board;
     static StringBuilder sb;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        sb = new StringBuilder();
-        int N = Integer.parseInt(br.readLine());
+        N = Integer.parseInt(br.readLine());
         board = new int[N][N];
+        sb = new StringBuilder();
         for (int i = 0; i < N; i++) {
-            String s = br.readLine();
+            String input = br.readLine();
             for (int j = 0; j < N; j++) {
-                board[i][j] = s.charAt(j) - '0';
+                board[i][j] = input.charAt(j) - '0';
             }
         }
 
-        func(0, 0, N);
+        dfs(0, 0, N);
         System.out.println(sb.toString());
     }
 
-    static void func(int r, int c, int size) {
-        int cur = board[r][c];
-
+    static void dfs(int r, int c, int size) {
+        int base = board[r][c];
         if (size == 1) {
-            sb.append(cur);
+            sb.append(base);
             return;
         }
 
         if (check(r, c, size)) {
-            sb.append(cur);
+            sb.append(base);
         } else {
             sb.append("(");
-            int nSize = size / 2;
-            func(r, c, nSize);
-            func(r, c + nSize, nSize);
-            func(r + nSize, c, nSize);
-            func(r + nSize, c + nSize, nSize);
+            dfs(r, c, size / 2);
+            dfs(r, c + size / 2, size / 2);
+            dfs(r + size / 2, c, size / 2);
+            dfs(r + size / 2, c + size / 2, size / 2);
             sb.append(")");
         }
     }
 
     static boolean check(int r, int c, int size) {
+        int base = board[r][c];
         for (int i = r; i < r + size; i++) {
             for (int j = c; j < c + size; j++) {
-                if (board[i][j] != board[r][c]) return false;
+                if (board[i][j] != base) return false;
             }
         }
         return true;
