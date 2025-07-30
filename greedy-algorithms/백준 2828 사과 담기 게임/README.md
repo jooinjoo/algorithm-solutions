@@ -33,4 +33,48 @@
     - 가장 처음의 바구니는 왼쪽에서 M칸을 차지하므로, `lt = 1`, `rt = M` 시작.
     - 현재 사과가 떨어지는 위치 `cur`이 `lt`와 `rt`의 범위에 있다면 넘기기.
     - 그렇지 않다면, `cur`까지의 거리를 구해, 누적 거리에 합하며 `lt`와 `rt`의 범위도 조정한다.
-        - 범위 조정은 `cur`이 바구니의 왼쪽에 위치하는지, 오른쪽에 위치하는지만 판단하면 된다. 
+        - 범위 조정은 `cur`이 바구니의 왼쪽에 위치하는지, 오른쪽에 위치하는지만 판단하면 된다.
+- 25.7.30. 다시 푼 방법:
+    - 초기의 바구니 상태 좌우 끝을 `lt = 1`, `rt = M`으로 놓고 시작.
+    - 다음 사과가 떨어지는 위치를 `lt`, `rt`와 비교하며 해당 값 사이에 떨어지면 이동하는 값 `tmp = 0`이 된다.
+        - 그렇지 않고 더 작으면 `lt`와의 차이, 더 크면 `rt`와의 차이만큼 `cnt`에 더해준다.
+        - 동시에 `lt`, `rt`의 값을 `tmp`만큼 조정.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    static int N, M, J, lt, rt, cnt = 0;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        N = Integer.parseInt(tok[0]);
+        M = Integer.parseInt(tok[1]);
+        J = Integer.parseInt(br.readLine());
+        lt = 1;
+        rt = M;
+        for (int i = 0; i < J; i++) {
+            int cur = Integer.parseInt(br.readLine());
+            int tmp = 0;
+            if (cur < lt) {
+                tmp = lt - cur;
+                lt -= tmp;
+                rt -= tmp;
+            } else if (cur > rt) {
+                tmp = cur - rt;
+                lt += tmp;
+                rt += tmp;
+            }
+            cnt += tmp;
+        }
+
+        System.out.println(cnt);
+    }
+}
+```
