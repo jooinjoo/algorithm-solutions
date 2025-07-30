@@ -45,3 +45,62 @@
     - `list`에 수열의 모든 원소를 한 번씩 입력하기 위해 `map.keySet()` 사용.
         - 리스트를 정렬할 때, 기본적으로 등장 횟수의 내림차순.
             - 만약 횟수가 같은 경우에는 최초 등장 인덱스의 오름차순 정렬.
+- 25.7.30. 다시 푼 방법:
+    - 첫 시도에서 배열을 선언하여 원소를 카운팅하고, 순서를 넣었더니 메모리 초과.
+        - 입력되는 수들이 연속적이지 않고 멀리 떨어질 수 있으니 배열보단 맵이 더 적합.
+    - `Map<Integer, Integer> cnt`라는 특정 원소 등장 횟수를 저장하는 맵과 `Map<Integer, Integer> seq`라는 특정 원소 최초 등장 순서를 저장하는 맵 선언.
+        - 커스텀 정렬을 통해 원소 출력 순서를 결정.
+        - 기본 정렬 순서는 `cnt`의 값이 큰 순서로, 그 다음 정렬 순서는 `seq`의 값이 작은 순서로 정렬.
+    - 입력되는 수의 크기나 범위에 따라 자료 구조를 잘 선택해보자.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class Solution {
+
+    static int N, C;
+    static HashMap<Integer, Integer> cnt;
+    static HashMap<Integer, Integer> seq;
+    static ArrayList<Integer> vals;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        String[] tok = br.readLine().split(" ");
+        N = Integer.parseInt(tok[0]);
+        C = Integer.parseInt(tok[1]);
+        cnt = new HashMap<>();
+        seq = new HashMap<>();
+        vals = new ArrayList<>();
+        tok = br.readLine().split(" ");
+        int idx = 1;
+        for (int i = 0; i < N; i++) {
+            int cur = Integer.parseInt(tok[i]);
+
+            cnt.put(cur, cnt.getOrDefault(cur, 0) + 1);
+            if (!seq.containsKey(cur)) {
+                seq.put(cur, idx++);
+            }
+            vals.add(cur);
+        }
+
+        vals.sort((o1, o2) -> {
+            if (cnt.get(o1) == cnt.get(o2)) {
+                return seq.get(o1) - seq.get(o2);
+            }
+            return cnt.get(o2) - cnt.get(o1);
+        });
+
+        for (int i : vals) {
+            sb.append(i).append(" ");
+        }
+        System.out.println(sb.toString());
+    }
+}
+```
