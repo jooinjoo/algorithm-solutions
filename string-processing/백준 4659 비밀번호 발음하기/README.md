@@ -55,6 +55,9 @@
             - 만약 둘 중 하나라도 연속으로 `3`이 되는 순간 실패.
         - 3번째 조건은 직전 알파벳 `pre`와 비교하며 판단. 통과했다면 `pre` 갱신.
     - 이후 모든 조건이 `true`일 때만 좋은 패스워드.
+- 25.8.5. 다시 푼 방법:
+    - 입력 문자열의 알파벳을 하나씩 루프하며 현재 알파벳 `cur`이 모음/자음 인지, 연속된 모음/자음 인지, 직전 알파벳과 같은지를 검사한다.
+    - 루프가 끝나면 각 세 가지 조건이 모두 참일 때만 좋은 패스워드, 그렇지 않으면 나쁜 패스워드를 출력.
 
 ## 다른 코드
 
@@ -100,6 +103,58 @@ public class Solution {
             }
         }
         System.out.println(sb);
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+
+        String input = "";
+        while (!(input = br.readLine()).equals("end")) {
+            boolean chk1, chk2, chk3;
+            chk1 = false;
+            chk2 = chk3 = true;
+            int vCnt = 0, cCnt = 0;
+            char pre = 0;
+
+            for (char cur : input.toCharArray()) {
+                if (cur == 'a' || cur == 'e' || cur == 'i' || cur == 'o' || cur == 'u') {
+                    chk1 = true;
+                    vCnt++;
+                    cCnt = 0;
+                } else {
+                    cCnt++;
+                    vCnt = 0;
+                }
+
+                if (vCnt == 3 || cCnt == 3) {
+                    chk2 = false;
+                }
+
+                if (pre == cur && cur != 'e' && cur != 'o') {
+                    chk3 = false;
+                }
+                pre = cur;
+            }
+
+            if (chk1 && chk2 && chk3) {
+                sb.append("<").append(input).append("> is acceptable.\n");
+            } else {
+                sb.append("<").append(input).append("> is not acceptable.\n");
+            }
+        }
+        System.out.println(sb.toString());
     }
 }
 ```
