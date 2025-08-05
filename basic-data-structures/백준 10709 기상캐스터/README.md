@@ -43,3 +43,66 @@ JOI시는 남북방향이 H 킬로미터, 동서방향이 W 킬로미터인 직�
         - 만약 한 번이라도 `0`을 만나면 이후로는 무조건 구름이 지나가므로 직전 값 +1로 갱신.
         - 이 과정에서 다른 구름이 존재했던 `0`을 만나거나, `w` 범위에 다다르면 종료.
             - 기존에 탐색했던 열 값으로 돌아가 다시 재탐색.
+- 25.8.5. 다시 푼 방법:
+    - 전체 초기 값 `board`를 기준으로 `ret`를 구성. 구름이 있으면 0, 없으면 -1로 초기화.
+    - 이후 각 행 -> 열 순으로 루프하며 해당 행에서 한 번이라도 구름을 만난 적 있는지 `flag`로 검사.
+        - 만난 적 있고 해당 값이 -1이면 이후 값들은 무조건 직전 값 +1.
+        - 만약 다른 구름이 존재하는, 0을 또 만나면 넘어가기.
+    - 이전에 풀었던 방식으로 구름을 만나면, 그 이후 값들을 또다시 검사하는 방식이 반복을 줄일 수 있어 더 좋은 듯 하다.
+
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    static int H, W;
+    static char[][] board;
+    static int[][] ret;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        String[] tok = br.readLine().split(" ");
+        H = Integer.parseInt(tok[0]);
+        W = Integer.parseInt(tok[1]);
+        board = new char[H][W];
+        ret = new int[H][W];
+        for (int i = 0; i < H; i++) {
+            for (int j = 0; j < W; j++) {
+                ret[i][j] = -1;
+            }
+        }
+        for (int i = 0; i < H; i++) {
+            String input = br.readLine();
+            for (int j = 0; j < W; j++) {
+                board[i][j] = input.charAt(j);
+                if (board[i][j] == 'c') ret[i][j] = 0;
+            }
+        }
+
+        for (int i = 0; i < H; i++) {
+            boolean flag = false;
+            for (int j = 0; j < W; j++) {
+                if (ret[i][j] == 0) {
+                    flag = true;
+                } else if (ret[i][j] == -1) {
+                    if (flag) ret[i][j] = ret[i][j - 1] + 1;
+                }
+            }
+        }
+
+        for (int i = 0; i < H; i++) {
+            for (int j = 0; j < W; j++) {
+                sb.append(ret[i][j]).append(" ");
+            }
+            sb.append("\n");
+        }
+        System.out.println(sb.toString());
+    }
+}
+```
