@@ -40,4 +40,47 @@
         - ex) 10! = 1 * ... * 5 * ... * 10 인데, 5는 오직 5의 배수에만 존재하므로 5, 10에서 두 번 사용되었고, 이는 10 / 5 = 2와 동일.
         - 한편 25의 경우, 한번에 5가 두 번 사용됨. 이러한 경우, 5에서 5가 한 번, 25에서 5가 한번 사용되었다고 볼 수 있다.
             - 그러므로 `tmp = 5`부터 시작해 계속해서 5를 곱해 제수를 키운 다음, 만약 `tmp`가 `n`보다 작은 범위라면 나눈 몫을 계속 더해주면 된다.
-            - ex) 26!의 0의 개수 = (26 / 5) + (26 / 25) = 6. 
+            - ex) 26!의 0의 개수 = (26 / 5) + (26 / 25) = 6.
+- 25.8.6. 다시 푼 방법:
+    - 오른쪽 끝의 0의 개수는 10을 몇 번 만들 수 있는가와 동일하다.
+        - 10은 2 * 5이기 때문에 2와 5가 한 세트로 몇 번 존재하는가를 찾으면 되는데, 2는 짝수마다 쓰이므로 굳이 신경쓰지 않아도 존재하고 5만 신경쓰면 된다.
+        - 따라서 특정 N!에 5가 사용된 횟수는 N을 5로 나눈 몫과 동일하다.
+            - 한편 25를 보면, 0의 개수는 5가 아니라 6이다. 그 이유는 25를 곱할 때 한번에 2개 사용되었기 때문.
+            - 따라서 나누는 특정 N이 입력되면, 나누는 수를 5부터 시작해 5의 제곱수로 키우면서 몫들을 더하면 답을 구할 수 있다.
+    - 한편 알고리즘은 유추했는데 정답이 25%에서 틀렸는데, N과 5의 제곱수가 같은 경우를 빼서 그렇다. 범위에 유의.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    static int T;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        T = Integer.parseInt(br.readLine());
+        for (int i = 0; i < T; i++) {
+            int N = Integer.parseInt(br.readLine());
+            sb.append(func(N)).append("\n");
+        }
+
+        System.out.println(sb.toString());
+    }
+
+    static int func(int N) {
+        int base = 5;
+        int ret = 0;
+        while (base <= N) {
+            ret += N / base;
+            base *= 5;
+        }
+
+        return ret;
+    }
+}
+```
