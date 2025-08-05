@@ -39,3 +39,32 @@
         - 예를 들어, 6660, 6661, ... 66600 까지 10개. 이후 66601, 66602, ... 66699까지 99개. 이런 식으로 증가.
     - 최대 반복 값이 1000만 이하로 작으므로, 브루트 포스 방법을 통해 `cur` 값이 `"666"`을 포함하는지 확인.
         - `cur`를 String 타입으로 변환해 `contains("666")` 메서드로 카운팅.
+- 25.8.6. 다시 푼 방법:
+    - N의 최대 범위가 10000 이하이므로 어림잡아 최댓값을 잡아도 6,660,000 이하일 수밖에 없다.
+    - 따라서 1부터 루프해도 6백만 정도이기 때문에 브루트포스로 하나씩 늘려가며 "666"을 포함하는지 판단하며 카운팅.
+    - 일단 무식하게 풀 수 있는지, 그 다음으로 안되면 다른 알고리즘을 생각하는 힘을 길러보자.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int N = Integer.parseInt(br.readLine());
+        int cnt = 0;
+        int cur = 665;
+        while (cnt != N) {
+            cur++;
+            if (String.valueOf(cur).contains("666")) {
+                cnt++;
+            }
+        }
+        System.out.println(cur);
+    }
+}
+```
