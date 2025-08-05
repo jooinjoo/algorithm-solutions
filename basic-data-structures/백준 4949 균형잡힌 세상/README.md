@@ -45,3 +45,51 @@
             - 또한 `stack.peek()`의 값과 `c`가 짝을 이루는, `'(', ')'` 또는 `'[', ']'`인 경우에만 `pop()`을 통해 짝 제거 가능.
         - 마지막으로 `c`의 루프가 끝나면 무조건 스택이 비어있어야 균형잡힌 문자열.
         - 다음 입력을 위해 `stk.clear()`로 스택 초기화.
+- 25.8.6. 다시 푼 방법:
+    - 현재 문자열의 문자를 전부 루프하며, 괄호일 때만 스택에 넣거나 뺄 수 있는지 검증한다.
+        - 스택이 비어있다면 항상 괄호를 삽입하고, 스택의 탑이 존재하면, 쌍을 이룰 때만 `pop()`.
+        - 그렇지 않은 경우 항상 괄호를 삽입한다.
+        - 최종적으로 스택이 비어있는 경우에만 균형잡힌 문자열.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Stack;
+
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        String input = "";
+        Stack<Character> stk;
+        while (!(input = br.readLine()).equals(".")) {
+            char[] chars = input.toCharArray();
+            stk = new Stack<>();
+
+            for (char cur : chars) {
+                if (cur == '(' || cur == ')' || cur == '[' || cur == ']') {
+                    if (stk.isEmpty()) {
+                        stk.push(cur);
+                    } else {
+                        if (stk.peek() == '(' && cur == ')') stk.pop();
+                        else if (stk.peek() == '[' && cur == ']') stk.pop();
+                        else stk.push(cur);
+                    }
+                }
+            }
+
+            if (stk.isEmpty()) {
+                sb.append("yes\n");
+            } else {
+                sb.append("no\n");
+            }
+        }
+
+        System.out.println(sb.toString());
+    }
+}
+```
