@@ -39,3 +39,63 @@
         - 또한 `"0" + "분/초"`로 더한 뒤 뒤에서부터 2자리를 자르는 방법도 존재.
         - ex) 한 팀의 분/초가 각각 `MM = 7`, `SS = 31`인 경우 `String min = "07"`, `String sec = "031"`
             - `min.substring(min.length() - 2)` = "07", `sec.substring(sec.length() - 2)` = "31"
+- 25.8.6. 다시 푼 방법:
+    - 현재 득점 시간과 이전 득점 시간의 차이만큼, 리드하던 팀의 누적 시간에 더하며 시간 갱신.
+        - 득점 입력이 들어오면, 각 팀의 점수와 현재 시간 갱신.
+        - 직전 리드 상황에 따라 각 팀에 누적 시간 더하기.
+        - 현재 점수 현황에 따라 리드하는 팀 갱신 및 이전 시간 갱신.
+        - 게임 종료 이후 누적 시간 갱신.
+    - 알고리즘 자체는 어렵지 않았고, 핵심은 `System.out.printf()`의 활용. 원하는 포맷으로 출력.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int N = Integer.parseInt(br.readLine());
+        int curTime = 0, preTime = 0;
+        int one = 0, two = 0;
+        int oneCnt = 0, twoCnt = 0;
+        int flag = 0;
+
+        for (int i = 0; i < N; i++) {
+            String[] tok = br.readLine().split(" ");
+            if (Integer.parseInt(tok[0]) == 1) one++;
+            else two++;
+
+            String[] time = tok[1].split(":");
+            curTime = Integer.parseInt(time[0]) * 60 + Integer.parseInt(time[1]);
+
+            if (flag == 1) {
+                oneCnt += curTime - preTime;
+            } else if (flag == 2) {
+                twoCnt += curTime - preTime;
+            }
+
+            if (one == two) {
+                flag = 0;
+            } else if (one > two) {
+                flag = 1;
+            } else {
+                flag = 2;
+            }
+            preTime = curTime;
+        }
+
+        if (flag == 1) {
+            oneCnt += 60 * 48 - preTime;
+        } else if (flag == 2) {
+            twoCnt += 60 * 48 - preTime;
+        }
+
+        System.out.printf("%02d:%02d%n", oneCnt / 60, oneCnt % 60);
+        System.out.printf("%02d:%02d", twoCnt / 60, twoCnt % 60);
+    }
+}
+```
