@@ -36,3 +36,44 @@ VPS 가 아닌 문자열이다.
             - 이 과정에서 스택이 이미 비어있거나, 모든 루프 이후에도 스택에 값이 남아있다면 VPS 실패. "NO" 출력.
         - 위의 VPS 조건을 모두 만족한다면 "YES" 출력.
     - 입력의 루프가 끝나면, 다음 입력을 위해 `stk.clear()`로 스택 초기화.
+- 25.8.6. 다시 푼 방법:
+    - 스택을 활용하여 `(`와 `)`가 만나면 항상 `pop()`하도록 만들었을 때, VPS는 항상 스택이 비어있어야 한다.
+    - 따라서 스택의 탑 값과 현재 값 `cur`이 짝을 이룰 때만 `pop()`하도록 만들고, 나머지는 전부 `push()`.
+        - 이런 로직을 따랐을 때 항상 마지막에 스택이 비어있는지 아닌지만 검사하면 VPS 감별 가능.
+    - 좀 더 성능 향상을 위한다면, `)`가 혼자 쌓였을 때 바로 실패하는 종료 조건을 넣을 수도 있겠다.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Stack;
+
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        int T = Integer.parseInt(br.readLine());
+        Stack<Character> stk;
+        for (int i = 0; i < T; i++) {
+            stk = new Stack<>();
+            char[] chars = br.readLine().toCharArray();
+
+            for (char cur : chars) {
+                if (stk.isEmpty()) {
+                    stk.push(cur);
+                } else {
+                    if (stk.peek() == '(' && cur == ')') stk.pop();
+                    else stk.push(cur);
+                }
+            }
+
+            if (stk.isEmpty()) sb.append("YES\n");
+            else sb.append("NO\n");
+        }
+        System.out.println(sb.toString());
+    }
+}
+```
