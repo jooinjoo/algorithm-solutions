@@ -39,3 +39,97 @@ N은 최대 8, 최악의 경우 64C3 * 64 = 약 260만이므로 시간 복잡도
         - 만약 현재 바이러스 좌표의 다음 좌표 `cMap[nr][nc] == 0`가 성립하면, 해당 좌표를 큐에 삽입하며 `2` 값으로 방문처리.
             - 이 과정에서 N * N 반복하여 최대 크기 64.
         - 모든 바이러스가 퍼지고 난 뒤에도, `cMap[r][c] == 0`인 부분이 바로 안전 영역. 카운팅하며 최댓값 갱신.
+- 25.8.6. 다시 푼 방법:
+    - 3개의 벽을 세우는 조합을 3중 for문으로 구한 뒤, 해당 조합마다 `board`에 새로운 벽을 세운 `copy` 지도를 만든다.
+    - 이후 `copy`에서 dfs 탐색을 통해, 바이러스를 전부 퍼뜨린 뒤 남아있는 안전한 공간의 개수를 최댓값과 비교하여 갱신.
+    - 최대 경우의 수가 많지 않아, 브루트포스 방식으로 벽을 세우는 모든 조합에 따라 바이러스를 퍼뜨리고 안전 영역을 구할 수 있었다.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Solution {
+
+    static int N, M, cnt = 0;
+    static int[][] board, copy;
+    static int[] dr = {0, 0, 1, -1};
+    static int[] dc = {1, -1, 0, 0};
+    static List<Pos> vals;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        N = Integer.parseInt(tok[0]);
+        M = Integer.parseInt(tok[1]);
+        board = new int[N][M];
+        vals = new ArrayList<>();
+        for (int i = 0; i < N; i++) {
+            tok = br.readLine().split(" ");
+            for (int j = 0; j < M; j++) {
+                board[i][j] = Integer.parseInt(tok[j]);
+                if (board[i][j] == 0) vals.add(new Pos(i, j));
+            }
+        }
+
+        for (int i = 0; i < vals.size() - 2; i++) {
+            for (int j = i + 1; j < vals.size() - 1; j++) {
+                for (int k = j + 1; k < vals.size(); k++) {
+                    makeCopy(vals.get(i), vals.get(j), vals.get(k));
+                }
+            }
+        }
+
+        System.out.println(cnt);
+    }
+
+    static void makeCopy(Pos pos1, Pos pos2, Pos pos3) {
+        copy = new int[N][M];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                copy[i][j] = board[i][j];
+            }
+        }
+        copy[pos1.r][pos1.c] = copy[pos2.r][pos2.c] = copy[pos3.r][pos3.c] = 1;
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (copy[i][j] == 2) {
+                    dfs(i, j);
+                }
+            }
+        }
+
+        int tmp = 0;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (copy[i][j] == 0) tmp++;
+            }
+        }
+        cnt = Math.max(cnt, tmp);
+    }
+
+    static void dfs(int r, int c) {
+        for (int i = 0; i < 4; i++) {
+            int nr = r + dr[i];
+            int nc = c + dc[i];
+            if (nr < 0 || nc < 0 || nr == N || nc == M || copy[nr][nc] != 0) continue;
+            copy[nr][nc] = 2;
+            dfs(nr, nc);
+        }
+    }
+
+    static class Pos {
+        int r, c;
+
+        public Pos(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+    }
+}
+```
