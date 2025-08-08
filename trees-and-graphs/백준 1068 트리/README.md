@@ -49,3 +49,73 @@ N은 50 이하이며, 시간복잡도는 O(N).
             - 연결된 자식 노드가 `del`과 같으면 통과.
             - 그렇지 않으면 더 깊이 탐색하며 최종적으로 다음 노드 개수 `cnt`가 없을 때 `return 1`
     - 종료 조건이나 예외 케이스를 좀 더 세심히 살펴야겠다.
+- 25.8.9. 다시 푼 방법:
+    - 노드 간의 연결 정보를 `ArrayList<ArrayList<Integer>> adj`에 입력하여, 특정 노드의 자식노드를 리스트에 추가하는 방식으로 구현하였다.
+    - 노드의 부모 정보를 입력할 때, 루트 노드까지 찾는다.(0번 인덱스가 루트가 아닐 확률 존재)
+        - 삭제하는 노드, `target` 인덱스를 모든 노드를 루프하여 자식 노드로 `target`을 가지고 있다면 삭제.
+    - 모든 노드와 삭제하는 노드까지 입력한 후 루트 노드부터 DFS 탐색을 통해 다음 노드로 진행하며, 특정 노드의 자식 노드가 없다면 `cnt++`.
+        - 한편 루트 노드와 제거 노드가 같은 경우 탐색할 트리 자체가 없어지므로 바로 `0` 출력.
+    - 이전에 푼 방법에 비해 시간복잡도가 살짝 증가. 그 이유는 모든 노드를 직접 탐색하여, `target` 노드를 자식 노드로 갖고 있는지 검사했기 때문.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
+public class Solution {
+
+    static int N, root = -1, cnt = 0, target = -1;
+    static ArrayList<ArrayList<Integer>> adj;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        adj = new ArrayList<>();
+        for (int i = 0; i < N; i++) {
+            adj.add(new ArrayList<>());
+        }
+
+        String[] tok = br.readLine().split(" ");
+        for (int i = 0; i < N; i++) {
+            int parent = Integer.parseInt(tok[i]);
+            if (parent == -1) {
+                root = i;
+                continue;
+            }
+            adj.get(parent).add(i);
+        }
+
+        target = Integer.parseInt(br.readLine());
+        for (int i = 0; i < N; i++) {
+            if (i == target) continue;
+            ArrayList<Integer> cur = adj.get(i);
+            for (int j = 0; j < cur.size(); j++) {
+                if (cur.get(j) == target) cur.remove(j);
+            }
+        }
+
+        if (root == target) {
+            System.out.println(0);
+            System.exit(0);
+        }
+
+        dfs(root);
+        System.out.println(cnt);
+    }
+
+    static void dfs(int idx) {
+        ArrayList<Integer> cur = adj.get(idx);
+        if (cur.isEmpty()) {
+            cnt++;
+            return;
+        }
+
+        for (int next : cur) {
+            dfs(next);
+        }
+    }
+}
+```
