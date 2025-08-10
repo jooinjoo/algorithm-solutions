@@ -10,6 +10,7 @@
 의미한다. 그러한 수가 없는 경우에 오큰수는 -1이다.
 
 예를 들어, A = [3, 5, 2, 7]인 경우 NGE(1) = 5, NGE(2) = 7, NGE(3) = 7, NGE(4) = -1이다. A = [9, 5, 4, 8]인 경우에는 NGE(1) = -1, NGE(
+
 2) = 8, NGE(3) = 8, NGE(4) = -1이다.
 
 - 입력
@@ -42,3 +43,45 @@
         - 어차피 해당 인덱스의 오큰수 검증은 무조건 다음 인덱스부터 가능하므로.
     - 루프가 끝나면 `ret`의 값 출력.
     - 값끼리 1대1로 짝을 짓는 형식은 항상 스택을 먼저 떠올려보자.
+- 25.8.10. 다시 푼 방법:
+    - 특정 인덱스는 하나의 오큰수와 짝을 이룬다. 따라서 오큰수가 나올 때까지 스택에 담아두며 루프하다가, 오큰수 등장 시 스택에 담아놓은 것들을 모두 오큰수로 지정.
+    - 이 과정에서 스택에는 해당 값이 아닌 인덱스를 넣어놓는 것이 좋다.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Stack;
+
+public class Solution {
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        int N = Integer.parseInt(br.readLine());
+        int[] input = new int[N];
+        int[] ret = new int[N];
+        String[] tok = br.readLine().split(" ");
+        for (int i = 0; i < N; i++) {
+            input[i] = Integer.parseInt(tok[i]);
+        }
+        Arrays.fill(ret, -1);
+
+        Stack<Integer> stk = new Stack<>();
+        for (int i = 0; i < N; i++) {
+            while (!stk.isEmpty() && input[stk.peek()] < input[i]) {
+                ret[stk.pop()] = input[i];
+            }
+            stk.push(i);
+        }
+
+        for (int i : ret) {
+            sb.append(i).append(" ");
+        }
+        System.out.println(sb.toString());
+    }
+}
+```
