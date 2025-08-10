@@ -44,3 +44,88 @@ N과 M이 각각 최대 50과 13으로 크지 않아, 최댓값 기준으로 모
         - `tmp`는 해당 조합에 대한 치킨집 거리의 최솟값을 의미하고, `tmp = Integer.MAX_VALUE` 초기화.
             - 각각의 치킨집 조합에 따른 `tmp`를 모두 더해 현재 조합의 도시의 치킨 거리를 `ret`에 저장.
             - 직전까지의 도시의 치킨 거리 `dist`와 `ret`를 비교하며 최솟값을 갱신한다.
+- 25.8.11. 다시 푼 방법:
+    - 치킨집을 최대 M개 뽑는 조합을 구성한 뒤, 각 조합마다 가지는 도시의 치킨 거리를 비교하며 최솟값을 찾는 방식을 사용.
+    - M을 입력받고, 1부터 M까지 치킨집을 뽑는 경우의 수를 나눴다.
+        - 문제에서 최대 M개의 치킨집을 놔둘 때 이익이 난다고 이해하여, 1~M까지 전부 시도했는데, 생각해보니 최댓값인 M만 시도해도 될 것 같다.
+        - 어차피 모든 더 많은 치킨집에서 더 적은 수의 치킨집 조합은 항상 이미 가지기 때문에.
+    - 조합을 만드는 메서드에서 시간이 좀 걸렸는데, 빠르게 사용할 수 있도록 아예 외우도록 하자.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
+public class Solution {
+
+    static int N, M, min = Integer.MAX_VALUE;
+    static int[][] board;
+    static ArrayList<Pos> house;
+    static ArrayList<Pos> chic;
+    static int[] tmp;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        N = Integer.parseInt(tok[0]);
+        M = Integer.parseInt(tok[1]);
+        board = new int[N][N];
+        house = new ArrayList<>();
+        chic = new ArrayList<>();
+        for (int i = 0; i < N; i++) {
+            tok = br.readLine().split(" ");
+            for (int j = 0; j < N; j++) {
+                board[i][j] = Integer.parseInt(tok[j]);
+                if (board[i][j] == 1) house.add(new Pos(i, j));
+                else if (board[i][j] == 2) chic.add(new Pos(i, j));
+            }
+        }
+
+        for (int i = 1; i <= M; i++) {
+            tmp = new int[i];
+            comb(i, 0, 0);
+        }
+
+        System.out.println(min);
+    }
+
+    static void comb(int size, int idx, int cnt) {
+        if (cnt == size) {
+            int sum = calc();
+            min = Math.min(min, sum);
+            return;
+        }
+
+        for (int i = idx; i < chic.size(); i++) {
+            tmp[cnt] = i;
+            comb(size, i + 1, cnt + 1);
+        }
+    }
+
+    static int calc() {
+        int ret = 0;
+        for (Pos hou : house) {
+            int sum = Integer.MAX_VALUE;
+            for (int t : tmp) {
+                Pos chi = chic.get(t);
+                int dist = Math.abs(hou.r - chi.r) + Math.abs(hou.c - chi.c);
+                sum = Math.min(sum, dist);
+            }
+            ret += sum;
+        }
+        return ret;
+    }
+
+    static class Pos {
+        int r, c;
+
+        public Pos(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+    }
+}
+```
