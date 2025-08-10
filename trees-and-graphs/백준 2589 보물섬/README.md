@@ -36,3 +36,82 @@
         - 매 지도 칸마다 시작하기 전에 `vis = new int[n][m]`로 방문 처리 초기화.
     - `bfs(r, c)`는 (r, c) 좌표에서 시작하여 동서남북 이동. `vis[r][c] = 1`부터 시작하여 방문 처리.
         - BFS의 첫 레벨을 0이 아닌, 1부터 시작했기 때문에 `max` 값을 갱신할 때마다 `vis[nr][nc] - 1`를 해줘야 한다.
+- 25.8.11. 다시 푼 방법:
+    - 보물 지도에서 서로 가장 멀리 떨어져있는 육지 두 군데를 찾기 위해선, 모든 육지마다 가장 멀리갈 수 있는 거리를 비교해봐야 한다.
+    - 따라서 육지를 만날 때마다 BFS 탐색을 통해, 해당 육지에서 가장 멀리 갈 수 있는 거리를 구하고, 이를 최댓값 갱신.
+        - 이 과정에서 `class Pos`의 필드로 `lev`를 설정해 해당 객체가 몇 번째 거리에 왔는지 직접 쟀지만, 다른 방법으로는 `int[][]`에 값을 갱신해가며 새로 써가도 좋을 것 같다.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Solution {
+
+    static int n, m, ans = 0;
+    static char[][] board;
+    static boolean[][] vis;
+    static int[] dr = {0, 0, 1, -1}, dc = {1, -1, 0, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        n = Integer.parseInt(tok[0]);
+        m = Integer.parseInt(tok[1]);
+        board = new char[n][m];
+        for (int i = 0; i < n; i++) {
+            String input = br.readLine();
+            for (int j = 0; j < m; j++) {
+                board[i][j] = input.charAt(j);
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (board[i][j] == 'L') {
+                    vis = new boolean[n][m];
+                    int tmp = bfs(i, j);
+                    ans = Math.max(ans, tmp);
+                }
+            }
+        }
+
+        System.out.println(ans);
+    }
+
+    static int bfs(int r, int c) {
+        int ret = 0;
+        Queue<Pos> que = new LinkedList<>();
+        que.offer(new Pos(r, c, 0));
+        vis[r][c] = true;
+
+        while (!que.isEmpty()) {
+            Pos cur = que.poll();
+            ret = Math.max(ret, cur.lev);
+            for (int i = 0; i < 4; i++) {
+                int nr = cur.r + dr[i];
+                int nc = cur.c + dc[i];
+                if (nr < 0 || nc < 0 || nr == n || nc == m || vis[nr][nc] || board[nr][nc] == 'W') continue;
+                vis[nr][nc] = true;
+                que.offer(new Pos(nr, nc, cur.lev + 1));
+            }
+        }
+
+        return ret;
+    }
+
+    static class Pos {
+        int r, c, lev;
+
+        public Pos(int r, int c, int lev) {
+            this.r = r;
+            this.c = c;
+            this.lev = lev;
+        }
+    }
+}
+```
