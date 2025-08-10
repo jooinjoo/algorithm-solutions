@@ -42,3 +42,82 @@ BFS를 활용하여 시작 노드에서부터 가능한 모든 경로를 탐색�
     - 모든 노드 탐색 이후, 노드 별로 `int[] dp`에 저장된 해당 노드와 자식 노드들, 즉 해킹 가능한 모든 컴퓨터의 수가 제일 많은 인덱스만 출력.
     - 한편 제출 시간이 9576ms, 거의 10초에 다다를만큼 테스트 케이스가 빡빡해서, 동일 논리지만 DFS는 실패하고 BFS는 성공.
         - 만약 논리는 맞는 것 같은데, 시간 초과가 뜬다면 한번쯤 DFS - BFS 전환을 시도해보자.
+- 25.8.10 다시 푼 방법:
+    - 각 노드의 해킹가능한 수를 저장하는 `int[] cnt`를 01로 초기화.
+    - 1~N까지 노드마다 BFS 탐색을 통해 해킹가능한 노드 수를 `cnt`에 저장.
+        - 이 과정에서 최종적으로 저장되는 값을 `int max`와 비교하며 최댓값 갱신.
+    - 1~N까지 루프하며 `max`와 같은 값을 가진 `cnt[i]`가 나오면 `i`를 출력.
+    - `boolean[] vis`와 같이 각 노드의 탐색마다 방문처리를 새로 해주는 것이 필요하다.
+        - 예를 들어, 순환 구조인 사이클이 주어진다면 단순 dp를 통해서는 이미 방문한 노드를 다시 방문하는 것이 가능하다.
+        - 방문처리가 필요한 경우 귀찮더라도 따로 방문처리 배열을 선언하는 것이 실수를 줄일 수 있는 것 같다.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Solution {
+
+    static int N, M, max = -1;
+    static ArrayList<Integer>[] adj;
+    static int[] cnt;
+    static boolean[] vis;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        String[] tok = br.readLine().split(" ");
+        N = Integer.parseInt(tok[0]);
+        M = Integer.parseInt(tok[1]);
+
+        adj = new ArrayList[N + 1];
+        for (int i = 0; i < N + 1; i++) {
+            adj[i] = new ArrayList<>();
+        }
+        for (int i = 0; i < M; i++) {
+            tok = br.readLine().split(" ");
+            int A = Integer.parseInt(tok[0]);
+            int B = Integer.parseInt(tok[1]);
+            adj[B].add(A);
+        }
+
+        cnt = new int[N + 1];
+        Arrays.fill(cnt, -1);
+        for (int i = 1; i < N + 1; i++) {
+            vis = new boolean[N + 1];
+            cnt[i] = bfs(i);
+        }
+
+        for (int i = 1; i < N + 1; i++) {
+            if (cnt[i] == max) sb.append(i).append(" ");
+        }
+        System.out.println(sb.toString());
+    }
+
+    static int bfs(int idx) {
+        int ret = 1;
+        Queue<Integer> que = new LinkedList<>();
+        que.offer(idx);
+        vis[idx] = true;
+
+        while (!que.isEmpty()) {
+            int cur = que.poll();
+            for (int next : adj[cur]) {
+                if (vis[next]) continue;
+                que.offer(next);
+                vis[next] = true;
+                ret++;
+            }
+        }
+
+        max = Math.max(max, ret);
+        return cnt[idx] = ret;
+    }
+}
+```
