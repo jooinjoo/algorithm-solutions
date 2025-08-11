@@ -48,4 +48,81 @@ SCV의 체력이 0 또는 그 이하가 되어버리면, SCV는 그 즉시 파�
             - 한편 `sub`의 원소를 빼던 도중 배열의 인덱스가 0 미만으로 떨어지면 안되기 때문에 `Math.max(0, cur[0] - sub[i][0])`으로 조정.
     - 이미 값이 있는 경우는 방문 처리한 케이스기 때문에 건너 뛴다.
     - 이 과정에서 모든 인덱스의 값이 0이 되는 순간 종료.
-    - 3차원 배열에 대한 방문 처리는 생각치 못해 시간이 오래 걸렸다. 반드시 2차원 배열만 방문 처리한다는 생각을 버리자. 
+    - 3차원 배열에 대한 방문 처리는 생각치 못해 시간이 오래 걸렸다. 반드시 2차원 배열만 방문 처리한다는 생각을 버리자.
+- 25.8.11. 다시 푼 방법:
+    - 최대 N개의 SCV의 체력을 빼는 순열의 조합을 `perm()` 메서드를 통해 `order`에 저장한다.
+    - 모든 SCV를 파괴하는 공격 횟수의 최솟값을 구하는 문제이므로, BFS를 통해 초기 체력 상태에서 시작해 각 상태에서 뻗어나갈 수 있는 체력 조합을 체크해 나간다.
+        - `order`를 하나씩 적용하며 각 SCV 체력 상태를 `dp`에 저장하며, `dp`의 각 인덱스가 전부 0이 되는 시점에 종료.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Solution {
+
+    static int N;
+    static int[] vals, d = {9, 3, 1};
+    static ArrayList<int[]> order;
+    static int[][][] dp;
+    static int[] tmp;
+    static boolean[] vis;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        vals = new int[3];
+        String[] tok = br.readLine().split(" ");
+        for (int i = 0; i < N; i++) {
+            vals[i] = Integer.parseInt(tok[i]);
+        }
+        order = new ArrayList<>();
+        dp = new int[61][61][61];
+        dp[vals[0]][vals[1]][vals[2]] = 1;
+
+        // 순열 조합 만들고
+        tmp = new int[3];
+        vis = new boolean[3];
+        perm(0);
+
+        // 만든 순열을 토대로 체력 줄여나가기
+        Queue<int[]> que = new LinkedList<>();
+        que.offer(new int[]{vals[0], vals[1], vals[2]});
+        while (!que.isEmpty()) {
+            int[] cur = que.poll();
+            if (cur[0] == 0 && cur[1] == 0 && cur[2] == 0) break;
+
+            for (int[] sub : order) {
+                int na = Math.max(cur[0] - d[sub[0]], 0);
+                int nb = Math.max(cur[1] - d[sub[1]], 0);
+                int nc = Math.max(cur[2] - d[sub[2]], 0);
+                if (dp[na][nb][nc] != 0) continue;
+                dp[na][nb][nc] = dp[cur[0]][cur[1]][cur[2]] + 1;
+                que.offer(new int[]{na, nb, nc});
+            }
+        }
+
+        System.out.println(dp[0][0][0] - 1);
+    }
+
+    static void perm(int idx) {
+        if (idx == N) {
+            order.add(tmp.clone());
+            return;
+        }
+
+        for (int i = 0; i < N; i++) {
+            if (vis[i]) continue;
+            vis[i] = true;
+            tmp[idx] = i;
+            perm(idx + 1);
+            vis[i] = false;
+        }
+    }
+}
+```
