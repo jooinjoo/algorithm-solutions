@@ -53,6 +53,10 @@ N이 최대 50이고 인구 이동 발생 일수가 최대 2000인데, BFS 과�
     - 만약 모든 좌표를 탐색한 후에도 `flag = false`라면 종료.
 - 다른 해결 방법:
     - DFS 탐색으로도 풀어보았다.
+- 25.8.11. 다시 푼 방법:
+    - 최대 2000일까지, 현재 인구 이동이 가능한지 검사하는 `isValid()` 함수를 통해 루프를 결정.
+    - 인구 이동이 가능하다면 방문하지 않은 모든 지역을 탐색하며, 하나의 컴포넌트로 묶을 수 있는 지역들을 탐색한다.
+        - 이 과정에서 BFS 탐색을 사용하고, 국경이 열리는 지역들의 좌표, 해당 인구를 저장하고 BFS 탐색이 끝나면 각 좌표들의 값을 새로 변경.
 
 ## 다른 코드
 
@@ -126,6 +130,109 @@ public class Solution {
             tmp += map[nr][nc];
             dfs(nr, nc);
         }
+    }
+
+    static class Pos {
+        int r, c;
+
+        public Pos(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Solution {
+
+    static int N, L, R, ans = 0;
+    static int[][] board;
+    static boolean[][] vis;
+    static int[] dr = {0, 0, 1, -1}, dc = {1, -1, 0, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        N = Integer.parseInt(tok[0]);
+        L = Integer.parseInt(tok[1]);
+        R = Integer.parseInt(tok[2]);
+        board = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            tok = br.readLine().split(" ");
+            for (int j = 0; j < N; j++) {
+                board[i][j] = Integer.parseInt(tok[j]);
+            }
+        }
+
+        while (true) {
+            if (!isValid()) break;
+
+            vis = new boolean[N][N];
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    if (vis[i][j]) continue;
+                    bfs(i, j);
+                }
+            }
+            ans++;
+        }
+
+        System.out.println(ans);
+    }
+
+    static void bfs(int r, int c) {
+        Queue<Pos> que = new LinkedList<>();
+        que.offer(new Pos(r, c));
+        vis[r][c] = true;
+        int sum = board[r][c];
+        LinkedList<Pos> tmp = new LinkedList<>();
+        tmp.add(new Pos(r, c));
+
+        while (!que.isEmpty()) {
+            Pos cur = que.poll();
+            for (int i = 0; i < 4; i++) {
+                int nr = cur.r + dr[i];
+                int nc = cur.c + dc[i];
+                if (nr < 0 || nc < 0 || nr == N || nc == N || vis[nr][nc]) continue;
+                int res = Math.abs(board[cur.r][cur.c] - board[nr][nc]);
+                if (L <= res && res <= R) {
+                    vis[nr][nc] = true;
+                    que.offer(new Pos(nr, nc));
+                    sum += board[nr][nc];
+                    tmp.add(new Pos(nr, nc));
+                }
+            }
+        }
+
+        int res = sum / tmp.size();
+        for (Pos pos : tmp) {
+            board[pos.r][pos.c] = res;
+        }
+    }
+
+    static boolean isValid() {
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                int cur = board[i][j];
+                for (int k = 0; k < 4; k++) {
+                    int nr = i + dr[k];
+                    int nc = j + dc[k];
+                    if (nr < 0 || nc < 0 || nr == N || nc == N) continue;
+                    int res = Math.abs(cur - board[nr][nc]);
+                    if (L <= res && res <= R) return true;
+                }
+            }
+        }
+        return false;
     }
 
     static class Pos {
