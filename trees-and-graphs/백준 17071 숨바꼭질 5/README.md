@@ -49,3 +49,79 @@ K+1+2+3이다.
             - 한편 수빈의 다음 위치 `int nr`이 동생의 현재 위치 `k`와 같다면, 현재 시간에 둘이 동시에 이동하여 만날 수 있으므로 1) 조건 성립. 종료.
             - 만나지 못했다면 큐에 다음 노드를 삽입한 뒤, 모든 노드 삽입이 끝나면 시간 1 증가.
     - `flag` 여부에 따라 결과 출력.
+- 25.8.11. 다시 푼 방법:
+    - 수빈과 동생이 만나는 방법엔 두 가지가 존재.
+      1) 동시에 둘이 같은 지점으로 이동하여 만남.
+      2) 수빈이 이미 도착했던 지점을 동생이 이후에 도착하고, 그 시간이 동일한 홀/짝일 때.
+    - 따라서 수빈의 방문 경로를 2차원 배열 `int[2][500001] dp`로 설정하여, 짝수 시간 방문 시 `int[0][]`, 홀수일 시 `int[1][]`에 걸린 시간을 저장.
+    - 우선 각 초마다 동생의 위치를 먼저 이동시킨다. 이 과정에서 범위를 벗어나면 종료.
+        - 한편 새로운 `K`에 따라 이미 수빈이 방문한 지점이면 만날 수 있으므로 종료. 위의 2) 조건 성립.
+    - 다음으로 수빈이 이동하는데, 직전 시간에서 큐에 삽입한 크기만큼만 큐에서 꺼낸다.
+        - 이 과정에서 1) 조건이 성립하면 종료.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Solution {
+
+    static int N, K;
+    static int[][] dp;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        N = Integer.parseInt(tok[0]);
+        K = Integer.parseInt(tok[1]);
+
+        if (N == K) {
+            System.out.println(0);
+            return;
+        }
+
+        dp = new int[2][500001];
+        dp[0][N] = 1;
+
+        Queue<Integer> que = new LinkedList<>();
+        que.offer(N);
+        boolean flag = false;
+        int lev = 0;
+        while (!que.isEmpty()) {
+            // 동생 이동
+            lev++;
+            K += lev;
+            if (K > 500000) break;
+            if (dp[lev % 2][K] > 0) {
+                flag = true;
+                break;
+            }
+
+            // 수빈 이동
+            int size = que.size();
+            for (int i = 0; i < size; i++) {
+                int cur = que.poll();
+                int[] d = {1, -1, cur};
+                for (int j = 0; j < 3; j++) {
+                    int next = cur + d[j];
+                    if (next < 0 || next > 500000 || dp[lev % 2][next] != 0) continue;
+                    dp[lev % 2][next] = dp[(lev + 1) % 2][cur] + 1;
+                    if (next == K) {
+                        flag = true;
+                        break;
+                    }
+                    que.offer(next);
+                }
+                if (flag) break;
+            }
+            if (flag) break;
+        }
+
+        System.out.println(flag ? lev : -1);
+    }
+}
+```
