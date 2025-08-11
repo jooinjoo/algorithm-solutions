@@ -42,3 +42,66 @@
             - 재귀는 `idx`가 마지막 숫자의 인덱스에 도착하면 종료. 이후 최댓값 갱신.
         - 우선 다음 인덱스 값과 그대로 연산하고, 다음 인덱스가 끝이 아니라면 다음 인덱스에서 괄호 연산을 할 수 있으니 해당 결과와 연산.
     - 개인적으로 시간이 많이 걸린 문제였다. 아이디어는 쉽게 떠올렸는데 구현에서 막혔다. 완전 탐색은 인덱스로 비교한다는 것을 명심.
+- 25.8.11. 다시 푼 방법:
+    - 숫자와 연산자를 각각 `vals`와 `opers`에 나눠 입력.
+    - 숫자 a / b / c 가 연속으로 연산자 / 사이에 두고 있다고 가정하면, 숫자 a에서 할 수 있는 가지수는 2가지 밖에 없다.
+        - a와 b를 연산하거나,
+        - a와 b와 c를 괄호 연산한 것을 연산하거나.
+    - 따라서 누적합을 재귀하는 함수 `dfs()`의 인자로 현재 인덱스와 임시 누적합을 받으며, `dfs()` 재귀.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    static int N, ans = Integer.MIN_VALUE;
+    static int[] vals;
+    static char[] opers;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        vals = new int[N / 2 + 1];
+        opers = new char[N / 2];
+        String input = br.readLine();
+        for (int i = 0; i < N; i++) {
+            char c = input.charAt(i);
+            if (Character.isDigit(c)) vals[i / 2] = c - '0';
+            else opers[i / 2] = c;
+        }
+
+        dfs(0, vals[0]);
+
+        System.out.println(ans);
+    }
+
+    static void dfs(int idx, int sum) {
+        if (idx == vals.length - 1) {
+            ans = Math.max(ans, sum);
+            return;
+        }
+
+        dfs(idx + 1, calc(sum, vals[idx + 1], opers[idx]));
+
+        if (idx + 2 <= vals.length - 1) {
+            int rt = calc(vals[idx + 1], vals[idx + 2], opers[idx + 1]);
+            dfs(idx + 2, calc(sum, rt, opers[idx]));
+        }
+    }
+
+    static int calc(int a, int b, char oper) {
+        if (oper == '+') {
+            return a + b;
+        } else if (oper == '-') {
+            return a - b;
+        } else {
+            return a * b;
+        }
+    }
+
+}
+```
