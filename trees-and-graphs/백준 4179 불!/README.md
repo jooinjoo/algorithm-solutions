@@ -63,6 +63,9 @@ J는 입력에서 하나만 주어진다.
         - 불 먼저 시작지점부터 BFS 탐색을 통해 최단 거리로 불이 퍼져나가도록 `visF`를 저장.
         - 지훈도 시작점부터 BFS로 갈 수 있는 모든 범위를 탐색한다.
             - 이 때 다음 노드에 도착할 때 걸린 시간이 불의 방문 처리 시간보다 작도록 방문하는 것이 핵심.
+- 25.8.11. 다시 푼 방법:
+    - 불과 지훈은 동시에 이동한다. 하지만 불이 먼저, 그리고 이후에 지훈이 이동해야 한다.
+        - 각각 불의 큐 `fQue`와 지훈의 큐 `jQue`를 이용하여, 각각 이동할 수 있는 경우를 BFS 탐색.
 
 ## 다른 코드
 
@@ -147,6 +150,92 @@ public class Solution {
         public Pos(int row, int col) {
             this.row = row;
             this.col = col;
+        }
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Solution {
+
+    static int R, C, ans = 0;
+    static char[][] board;
+    static boolean[][] vis;
+    static int[] dr = {0, 0, 1, -1}, dc = {1, -1, 0, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        R = Integer.parseInt(tok[0]);
+        C = Integer.parseInt(tok[1]);
+        board = new char[R][C];
+        vis = new boolean[R][C];
+        Queue<Pos> jQue = new LinkedList<>();
+        Queue<Pos> fQue = new LinkedList<>();
+        for (int i = 0; i < R; i++) {
+            String input = br.readLine();
+            for (int j = 0; j < C; j++) {
+                board[i][j] = input.charAt(j);
+                if (board[i][j] == 'J') {
+                    jQue.add(new Pos(i, j));
+                    vis[i][j] = true;
+                    board[i][j] = '.';
+                } else if (board[i][j] == 'F') fQue.add(new Pos(i, j));
+            }
+        }
+
+        boolean flag = false;
+        while (!jQue.isEmpty()) {
+            int fSize = fQue.size();
+            for (int i = 0; i < fSize; i++) {
+                Pos fire = fQue.poll();
+                for (int j = 0; j < 4; j++) {
+                    int nr = fire.r + dr[j];
+                    int nc = fire.c + dc[j];
+                    if (nr < 0 || nc < 0 || nr == R || nc == C || board[nr][nc] != '.') continue;
+                    fQue.offer(new Pos(nr, nc));
+                    board[nr][nc] = 'F';
+                }
+            }
+
+            int jSize = jQue.size();
+            for (int i = 0; i < jSize; i++) {
+                Pos cur = jQue.poll();
+                for (int j = 0; j < 4; j++) {
+                    int nr = cur.r + dr[j];
+                    int nc = cur.c + dc[j];
+                    if (nr < 0 || nc < 0 || nr == R || nc == C) {
+                        flag = true;
+                        break;
+                    }
+                    if (vis[nr][nc] || board[nr][nc] != '.') continue;
+                    vis[nr][nc] = true;
+                    jQue.offer(new Pos(nr, nc));
+                }
+            }
+
+            ans++;
+            if (flag) break;
+        }
+
+        if (flag) System.out.println(ans);
+        else System.out.println("IMPOSSIBLE");
+    }
+
+    static class Pos {
+        int r, c;
+
+        public Pos(int r, int c) {
+            this.r = r;
+            this.c = c;
         }
     }
 }
