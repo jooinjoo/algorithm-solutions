@@ -51,6 +51,11 @@
     - 그리고 BFS 탐색이 끝난 후에, K에서 N까지 역으로 추적하기 위해 `pre[k]`부터 `pre[n]`을 만날 때까지 루프.
         - 이 과정에서 역으로 추적한 경로를 `List<Integer> vals`에 담는다.
         - 루프가 끝나면 남은 인덱스 N을 담고, `Collections.reverse(vals)` 를 통해 다시 순서를 정방향으로 조정.
+- 25.8.11. 다시 푼 방법:
+    - 이전과 다르게 단 하나의 최단거리와 지난 경로를 구하면 된다.
+    - 따라서 `int[] dp`를 시작점을 1로 설정해, 최초 방문하는 곳만 방문할 수 있게 처리하며 `K`를 만날 경우에 종료한다.
+        - 이 과정에서 큐에 삽입할 때, `int[] pre`라는 배열을 따로 선언해 다음 인덱스로 이동할 때, 해당 인덱스는 어떤 인덱스에서 왔는지 저장해주는 배열에 값을 저장.
+        - 이를 통해 역으로 K에서부터 추적할 수 있다.
 
 ## 다른 코드
 
@@ -114,6 +119,74 @@ public class Solution {
         Collections.reverse(vals);
         sb.append(vis[k] - 1).append("\n");
         for (int v : vals) sb.append(v).append(" ");
+        System.out.println(sb.toString());
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
+
+public class Solution {
+
+    static int N, K, cnt = 0;
+    static int[] dp, pre;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        String[] tok = br.readLine().split(" ");
+        N = Integer.parseInt(tok[0]);
+        K = Integer.parseInt(tok[1]);
+        dp = new int[100001];
+        pre = new int[100001];
+
+        if (N >= K) {
+            sb.append(N - K).append("\n");
+            for (int i = N; i >= K; i--) {
+                sb.append(i).append(" ");
+            }
+            System.out.println(sb.toString());
+            return;
+        }
+
+        dp[N] = 1;
+        Queue<Integer> que = new LinkedList<>();
+        que.offer(N);
+        while (!que.isEmpty()) {
+            int cur = que.poll();
+            if (cur == K) {
+                break;
+            }
+            int[] d = {1, -1, cur};
+            for (int i = 0; i < 3; i++) {
+                int next = cur + d[i];
+                if (next < 0 || next >= dp.length || dp[next] != 0) continue;
+                dp[next] = dp[cur] + 1;
+                pre[next] = cur;
+                que.offer(next);
+            }
+        }
+        dp[K]--;
+
+        sb.append(dp[K]).append("\n");
+        Stack<Integer> stk = new Stack<>();
+        stk.push(K);
+        int tmp = pre[K];
+        for (int i = 0; i < dp[K]; i++) {
+            stk.push(tmp);
+            tmp = pre[tmp];
+        }
+        while (!stk.isEmpty()) {
+            sb.append(stk.pop()).append(" ");
+        }
         System.out.println(sb.toString());
     }
 }
