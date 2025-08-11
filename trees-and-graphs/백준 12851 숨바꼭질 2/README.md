@@ -38,6 +38,11 @@
         - 이미 해당 레벨에서 갈 수 있는 모든 노드는 큐에 삽입된 상태이기 때문.
     - 한편 반례에 대해 생각하지 않았는데 운 좋게 풀렸다. 예를 들어 수빈의 위치가 동생과 같거나 더 큰 위치에 해당하고 있을 때.
         - 같은 경우 `0 + "\n" + 1`을 출력해야 하고, 더 큰 경우 뒤로 1칸씩 이동하는 한가지 경우만 존재하므로 `n - k + "\n" + 1` 출력.
+- 25.8.11. 다시 푼 방법:
+    - 수빈은 +1, -1, *2 만큼 한번에 이동할 수 있는데 수빈이 동생과 같거나 큰 수에 있을 경우 뒤로가는 경우의 수 하나밖에 없어서 최초 차이만큼 뺀 것을 출력해주면 된다.
+    - 한편 동생이 수빈보다 큰 수에 있을 경우, 세 가지 경우에 따라 전부 BFS 탐색을 통해 최대한 빠르게 만나는 방법을 찾아야 한다.
+        - 수빈이 해당 인덱스에 도달하기까지의 거리를 `dp`에 최댓값으로 초기화한 뒤, 시작점을 `0`으로 두고 하나씩 증가시키며 동생 위치와 비교.
+        - 한편 동생위치와 같은 위치가 큐에서 최초로 poll 되면, BFS 방식으로 접근했기 때문에 현재 큐에 넣어있는 원소들만 최솟값이 가능하다.
 
 ## 다른 코드
 
@@ -99,6 +104,64 @@ public class Solution {
             }
         }
         System.out.println(ans + "\n" + cnt);
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Solution {
+
+    static int N, K, cnt = 0;
+    static int[] dp, d = {1, -1, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        N = Integer.parseInt(tok[0]);
+        K = Integer.parseInt(tok[1]);
+        dp = new int[100001];
+        Arrays.fill(dp, Integer.MAX_VALUE);
+        dp[N] = 0;
+
+        if (N >= K) {
+            System.out.println(N - K);
+            System.out.println(1);
+            System.exit(0);
+        }
+
+        Queue<Integer> que = new LinkedList<>();
+        que.offer(N);
+        boolean flag = false;
+        while (!que.isEmpty()) {
+            int cur = que.poll();
+            if (cur == K) {
+                flag = true;
+                cnt++;
+            }
+            if (!flag) {
+                for (int i = 0; i < 3; i++) {
+                    int next = cur + d[i];
+                    if (i == 2) next *= 2;
+                    if (next < 0 || next >= dp.length) continue;
+                    if (dp[cur] + 1 <= dp[next]) {
+                        dp[next] = dp[cur] + 1;
+                        que.offer(next);
+                    }
+                }
+            }
+        }
+
+        System.out.println(dp[K]);
+        System.out.println(cnt);
     }
 }
 ```
