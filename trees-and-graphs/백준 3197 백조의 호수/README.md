@@ -56,3 +56,118 @@ XXXXXXX...XXXX... ..XXXX.....XX.... ....X............
             - 따라서 `wqTmp`에 만난 지역 중 `'X'` 값을 가지는 지역을 모두 삽입한 뒤, 다음 시간의 물이 해당 지역들을 탐색하도록 `wq = wqTmp` 초기화.
         - 백조의 경우도 위와 동일하다. 동서남북으로 방문하지 않은 지역을 갈 수 있으면 `sq`에 삽입하며 얼음을 만나면 다음 큐 `sqTmp`에 삽입.
             - 이 과정에서 다른 백조를 만나면 종료.
+- 25.8.12. 다시 푼 방법:
+    - 각 시간마다 "1) 백조가 만날 수 있는지 체크"하고 "2) 만날 수 없다면 물 이동하여 얼음 녹이기"가 진행된다.
+    - 따라서 백조와 물 각각 큐를 두 개씩 사용하여, 현재 이동할 수 있는 영역에 사용되는 큐와 다음에 사용될 큐가 필요하다.
+        - 백조의 경우 `move()` 메서드를 통해, 현재 백조 위치에서 이동할 수 있는 모든 영역을 이동하는 `sq`에서 탐색을 진행.
+            - 중간에 다른 백조를 만나면 종료하며, 벽을 만나면 `stmp`에 임시로 저장해 다음 시간에 사용.
+        - 물의 경우 `water()` 메서드를 통해, 현재 물 원소들의 위치에서 이동할 수 있는 모든 영역을 탐색
+            - 이 과정에서 벽을 만나면 해당 영역들을 물로 바꿔주며 다음 큐인 `wtmp`에 저장하여 넣는다.
+    - 굉장히 어려웠다. 시간이 빡빡할 땐 여러 큐를 복합적으로 사용하는 것을 생각해야 한다.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Solution {
+
+    static int R, C, x, y;
+    static char[][] board;
+    static Queue<Pos> sq, stmp, wq, wtmp;
+    static boolean[][] svis, wvis;
+    static int[] dr = {0, 0, 1, -1}, dc = {1, -1, 0, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        R = Integer.parseInt(tok[0]);
+        C = Integer.parseInt(tok[1]);
+        board = new char[R][C];
+        sq = new LinkedList<>();
+        wq = new LinkedList<>();
+        svis = new boolean[R][C];
+        wvis = new boolean[R][C];
+        for (int i = 0; i < R; i++) {
+            String input = br.readLine();
+            for (int j = 0; j < C; j++) {
+                board[i][j] = input.charAt(j);
+                if (board[i][j] == 'L') {
+                    x = i;
+                    y = j;
+                }
+                if (board[i][j] == '.' || board[i][j] == 'L') {
+                    wq.offer(new Pos(i, j));
+                    wvis[i][j] = true;
+                }
+            }
+        }
+
+        svis[x][y] = true;
+        sq.offer(new Pos(x, y));
+
+        int ans = 0;
+        while (true) {
+            if (move()) break;
+            water();
+            ans++;
+        }
+
+        System.out.println(ans);
+    }
+
+    static void water() {
+        wtmp = new LinkedList<>();
+
+        while (!wq.isEmpty()) {
+            Pos cur = wq.poll();
+            for (int i = 0; i < 4; i++) {
+                int nr = cur.r + dr[i];
+                int nc = cur.c + dc[i];
+                if (nr < 0 || nc < 0 || nr == R || nc == C || wvis[nr][nc]) continue;
+                if (board[nr][nc] == 'X') {
+                    wvis[nr][nc] = true;
+                    board[nr][nc] = '.';
+                    wtmp.add(new Pos(nr, nc));
+                }
+            }
+        }
+        wq = wtmp;
+    }
+
+    static boolean move() {
+        stmp = new LinkedList<>();
+
+        while (!sq.isEmpty()) {
+            Pos cur = sq.poll();
+            for (int i = 0; i < 4; i++) {
+                int nr = cur.r + dr[i];
+                int nc = cur.c + dc[i];
+                if (nr < 0 || nc < 0 || nr == R || nc == C || svis[nr][nc]) continue;
+                svis[nr][nc] = true;
+                if (board[nr][nc] == '.') {
+                    sq.add(new Pos(nr, nc));
+                } else if (board[nr][nc] == 'X') {
+                    stmp.add(new Pos(nr, nc));
+                } else if (board[nr][nc] == 'L') return true;
+            }
+        }
+        sq = stmp;
+        return false;
+    }
+
+
+    static class Pos {
+        int r, c;
+
+        public Pos(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+    }
+}
+```
