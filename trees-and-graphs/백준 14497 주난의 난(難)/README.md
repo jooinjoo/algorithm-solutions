@@ -72,6 +72,12 @@
         - 그리고 해당 노드는 다음 레벨에서의 탐색 시작 노드이기도 하다. 따라서 다음 레벨의 노드 시작점을 담은 `tmp` 큐에 삽입.
             - 모든 현재 레벨 탐색이 끝나면 현재 레벨 큐를 다음 레벨 큐로 갱신. `q = tmp`
     - 그리고 BFS 탐색은 범인 노드의 방문 처리가 됐을 때 종료.
+- 25.8.12. 다시 푼 방법:
+    - 주난의 점프로 이동할 수 있는 칸은 `0`일 때만이다. 따라서 주난 위치부터 시작해, BFS탐색으로 `0`인 가능한 경로는 한번에 전부 이동해야 한다.
+    - 한편 이렇게하면 `1`을 만났을 때, 이를 0으로 바꾸고 다시 탐색해야하는 번거로움이 생긴다. 따라서 두 개의 큐를 사용한다.
+        - 하나의 큐는 0일 때 이동가능한 경로를 방문처리하는 큐.
+        - 또다른 큐는 1을 만나면 임시저장한 뒤, 0으로 이동가능한 탐색이 전부 끝나면 다음 점프 전에 0 이동가능큐로 바꿔주는 큐.
+    - 이런식으로 반복하다, 목표 지점이 0으로 바뀌어있으면 도달했다는 뜻이므로 종료.
 
 ## 다른 코드
 
@@ -138,6 +144,84 @@ public class Solution {
             q = tmp;
         }
         System.out.println(vis[x2][y2]);
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Solution {
+
+    static int N, M, x1, y1, x2, y2, ans = 0;
+    static char[][] board;
+    static boolean[][] vis;
+    static int[] dr = {0, 0, 1, -1}, dc = {1, -1, 0, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        N = Integer.parseInt(tok[0]);
+        M = Integer.parseInt(tok[1]);
+        tok = br.readLine().split(" ");
+        x1 = Integer.parseInt(tok[0]) - 1;
+        y1 = Integer.parseInt(tok[1]) - 1;
+        x2 = Integer.parseInt(tok[2]) - 1;
+        y2 = Integer.parseInt(tok[3]) - 1;
+        board = new char[N][M];
+        for (int i = 0; i < N; i++) {
+            String input = br.readLine();
+            for (int j = 0; j < M; j++) {
+                board[i][j] = input.charAt(j);
+                if (board[i][j] == '#') board[i][j] = '1';
+            }
+        }
+
+        Queue<Pos> que = new LinkedList<>();
+        que.offer(new Pos(x1, y1));
+        vis = new boolean[N][M];
+        vis[x1][y1] = true;
+        Queue<Pos> tmp;
+
+        while (true) {
+            if (board[x2][y2] == '0') break;
+            ans++;
+
+            tmp = new LinkedList<>();
+            while (!que.isEmpty()) {
+                Pos cur = que.poll();
+                for (int i = 0; i < 4; i++) {
+                    int nr = cur.r + dr[i];
+                    int nc = cur.c + dc[i];
+                    if (nr < 0 || nc < 0 || nr == N || nc == M || vis[nr][nc]) continue;
+                    vis[nr][nc] = true;
+                    if (board[nr][nc] == '0') {
+                        que.offer(new Pos(nr, nc));
+                    } else if (board[nr][nc] == '1') {
+                        board[nr][nc] = '0';
+                        tmp.offer(new Pos(nr, nc));
+                    }
+                }
+            }
+            que = tmp;
+        }
+
+        System.out.println(ans);
+    }
+
+    static class Pos {
+        int r, c;
+
+        public Pos(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
     }
 }
 ```
