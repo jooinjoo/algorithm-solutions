@@ -43,3 +43,55 @@ DFS의 depth가 가장 많이 갈 수 있는 경로가 정답.
         - 재귀할 때마다 최대의 칸 수 `int ans`를 최댓값 갱신.
             - 한편 다음 노드를 갈 수 있는지 판별할 때, 만약 갈 수 있어서 재귀를 할 수 있다면 방문 처리를 원상 복구하는 것이 핵심.
             - 또한 단순 `vis` 배열의 방문 처리 원상 복구 뿐만 아니라, `Set<Character> set` 또한 해당 알파벳을 지워줘야 한다.
+- 25.8.12. 다시 푼 방법:
+    - 지금까지 지나지 않은 알파벳만 이동할 수 있다는 뜻은, 곧 지난 알파벳들이 방문처리와 동일하다는 뜻이다.
+    - 따라서 `HashSet<Character> set`에 지금까지 지난 알파벳들을 저장하며, 다음 노드의 알파벳이 셋에 있는지 없는지만 검사하며 진행.
+        - 또한 `dfs()`가 시작될 때마다 셋의 크기를 체크하며 최대길이 갱신.
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashSet;
+
+public class Solution {
+
+    static int R, C, ans = 0;
+    static char[][] board;
+    static int[] dr = {0, 0, 1, -1}, dc = {1, -1, 0, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        R = Integer.parseInt(tok[0]);
+        C = Integer.parseInt(tok[1]);
+        board = new char[R][C];
+        for (int i = 0; i < R; i++) {
+            String input = br.readLine();
+            for (int j = 0; j < C; j++) {
+                board[i][j] = input.charAt(j);
+            }
+        }
+
+        HashSet<Character> set = new HashSet<>();
+        set.add(board[0][0]);
+        dfs(0, 0, set);
+
+        System.out.println(ans);
+    }
+
+    static void dfs(int r, int c, HashSet<Character> set) {
+        ans = Math.max(ans, set.size());
+        for (int i = 0; i < 4; i++) {
+            int nr = r + dr[i];
+            int nc = c + dc[i];
+            if (nr < 0 || nc < 0 || nr == R || nc == C || set.contains(board[nr][nc])) continue;
+            set.add(board[nr][nc]);
+            dfs(nr, nc, set);
+            set.remove(board[nr][nc]);
+        }
+    }
+}
+```
