@@ -55,6 +55,12 @@
         - `s`와 `e`는 배열의 시작과 끝. 중간 값 `mid = (s + e) / 2`는 트리의 현재 레벨에 추가.
         - 중간 값 왼쪽 `(s ~ mid - 1)`과 오른쪽 `(mid + 1 ~ e)`을 각각 재귀적으로 탐색하여 다음 레벨로 내려간다.
         - 재귀가 멈추는 조건은 `s == e`, 즉 구간이 하나의 노드만 남았을 때. 이때 해당 노드를 현재 레벨에 추가.
+- 25.8.13. 다시 푼 방법:
+    - 인접 리스트 배열을 통해 완전 이진트리를 직접 만들고, 해당 완전 이진트리를 직접 문제에 맞게 순회하며 도시 번호를 매칭하였다.
+        - 루트 노드를 1로, 그 이후 레벨부터는 순차적으로 2, 3, ... 이런 방식으로 이진트리를 구성.
+        - 따라서 루트 노드인 1부터 `dfs(1)` DFS 탐색을 시작하며, 해당 노드의 다음 리프 노드가 없으면 현재 노드 방문.
+            - 이 과정에서 `int[] ret` 배열을 선언하여, 방문 하는 순서대로 `ret` 배열에 해당 노드를 몇 번째 방문하는지 저장.
+        - 이렇게 노드를 모두 방문하며 `ret`에 위에 선언한 노드의 인덱스 별로 몇 번째에 방문하는지 저장하였고, 이를 기반으로 문제에서 입력받은 `vals` 배열과 매칭.
 
 ## 다른 코드
 
@@ -107,6 +113,69 @@ public class Solution {
         ret[lev].add(arr[mid]);
         dfs(s, mid - 1, lev + 1);
         dfs(mid + 1, e, lev + 1);
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
+public class Solution {
+
+    static int K, N, cnt = 0;
+    static ArrayList<Integer>[] adj;
+    static int[] vals, ret;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        K = Integer.parseInt(br.readLine());
+        N = (int) Math.pow(2, K) - 1;
+        vals = new int[N];
+        int idx = 0;
+        for (String s : br.readLine().split(" ")) {
+            vals[idx++] = Integer.parseInt(s);
+        }
+        adj = new ArrayList[N + 1];
+        for (int i = 1; i <= N; i++) {
+            adj[i] = new ArrayList<>();
+            if (i >= Math.pow(2, K - 1)) continue;
+            adj[i].add(i * 2);
+            adj[i].add(i * 2 + 1);
+        }
+
+        ret = new int[N + 1];
+        dfs(1);
+
+        int tmp = 1;
+        for (int i = 1; i < adj.length; i++) {
+            if (i == Math.pow(2, tmp)) {
+                sb.append("\n");
+                tmp++;
+            }
+            sb.append(vals[ret[i]]).append(" ");
+        }
+
+        System.out.println(sb.toString());
+    }
+
+    static void dfs(int node) {
+        if (adj[node].isEmpty()) {
+            ret[node] = cnt++;
+            return;
+        }
+
+        int lt = adj[node].get(0);
+        int rt = adj[node].get(1);
+
+        dfs(lt);
+        ret[node] = cnt++;
+        dfs(rt);
     }
 }
 ```
