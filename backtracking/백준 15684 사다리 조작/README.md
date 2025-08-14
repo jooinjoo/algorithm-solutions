@@ -56,6 +56,13 @@ i번 세로선의 결과가 i번이 나오도록 사다리 게임을 조작하�
 - 다른 해결 방법:
     - 0부터 3까지 순서대로 탐색하는 방법 대신, 최댓값 `ans` 기준으로 더 작은 가로선 추가 조합에 대해서만 백트래킹 탐색.
     - 또한 `map`의 원소도 좌우 이동을 각각 나누기 보단 우로 뻗어나가는 원소만 설정하여 탐색하였다.
+- 25.8.14. 다시 푼 방법:
+    - 특정 가로선을 표기할 때, 왼쪽에서 오른쪽으로 이동하는, 즉 해당 행과 좌측 열의 값만 `true`로 표기하였다.
+        - 예) (1, 1) 가로선 -> `board[1][1] = true` -> (1, 1)에서는 우측이동, (1, 2)에서는 좌측이동.
+    - 이후 전체를 루프하며 현재 가로선이 들어갈 삽입될 수 있는 모든 위치를 `ArrayList<Pos> vals`에 삽입.
+        - 해당 원소들에서 최대 0~3까지 조합할 수 있는 메서드 `comb()`를 통해 최소로 추가하여 문제의 요구를 만족하는 결과를 도출.
+            - 해당 재귀 함수에서 조합에 선택한 수 `cnt`가 3을 넘으면 종료. 그렇지 않으면 일단 현재 상태에서 i -> i로 갈 수 있는지 `check()`로 확인.
+            - 만족하지 않으면 다음 조합을 선택한 후 원상복구 반복.
 
 ## 다른 코드
 
@@ -116,6 +123,91 @@ public class Solution {
             if (i != c) return false;
         }
         return true;
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
+public class Solution {
+
+    static int N, M, H, ans = 4;
+    static boolean[][] board;
+    static ArrayList<Pos> vals;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        N = Integer.parseInt(tok[0]);
+        M = Integer.parseInt(tok[1]);
+        H = Integer.parseInt(tok[2]);
+        board = new boolean[H + 1][N + 1];
+        for (int i = 0; i < M; i++) {
+            tok = br.readLine().split(" ");
+            int r = Integer.parseInt(tok[0]);
+            int c = Integer.parseInt(tok[1]);
+            board[r][c] = true;
+        }
+
+        vals = new ArrayList<>();
+        for (int i = 1; i <= H; i++) {
+            for (int j = 1; j < N; j++) {
+                if (!board[i][j]) vals.add(new Pos(i, j));
+            }
+        }
+
+        comb(0, 0);
+
+        System.out.println(ans == 4 ? -1 : ans);
+    }
+
+    static void comb(int idx, int cnt) {
+        if (cnt > 3 || cnt >= ans) return;
+        if (check()) {
+            ans = Math.min(ans, cnt);
+            return;
+        }
+
+        for (int i = idx; i < vals.size(); i++) {
+            Pos cur = vals.get(i);
+            if (board[cur.r][cur.c] || board[cur.r][cur.c - 1] || board[cur.r][cur.c + 1]) continue;
+            board[cur.r][cur.c] = true;
+            comb(i + 1, cnt + 1);
+            board[cur.r][cur.c] = false;
+        }
+    }
+
+    static boolean check() {
+        for (int i = 1; i <= N; i++) {
+            int r = 1;
+            int c = i;
+
+            while (r <= H) {
+                if (board[r][c]) {
+                    c++;
+                } else if (board[r][c - 1]) {
+                    c--;
+                }
+                r++;
+            }
+            if (c != i) return false;
+        }
+        return true;
+    }
+
+    static class Pos {
+        int r, c;
+
+        public Pos(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
     }
 }
 ```
