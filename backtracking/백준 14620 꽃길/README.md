@@ -57,6 +57,16 @@
     - (0, 0)부터 모든 좌표를 탐색하며, 해당 좌표가 직전 심은 꽃 상황 내에서 꽃을 심을 수 있는지 `check()`로 확인.
         - 가능하다면 `setFlower()`로 해당 좌표를 기준으로 방문 처리하며 꽃 심기.
         - 다음 좌표로 재귀하며, 재귀가 끝나면 `eraseFlower()`로 방문 처리 원상 복구.
+- 25.8.16. 다시 푼 방법:
+    - `N`이 최대 10이고 3개의 위치에 꽃을 심어야 하므로, 탐색의 최댓값은 100C3 = 대략 몇 십만 대.
+    - 따라서 브루트 포스로 가능한 모든 3개의 조합을 찾는 방식 결정.
+        - DFS 탐색을 통해 모든 좌표마다 해당 좌표에 꽃을 심을 수 있는지 `isValid(r, c)` 검사.
+            - 해당 좌표를 포함해 동서남북 다섯 좌표가 전부 방문 안했으면 가능.
+        - 꽃을 심을 수 있으면, `flower(r, c)`로 꽃을 심으며 방문 처리 + 심는 비용 리턴.
+        - 이후 `dfs(dep + 1, i + 1, sum + tmp)`를 통해 해당 좌표 방문 처리 후 다음 DFS 탐색.
+        - 탐색이 끝나면 다시 방문 처리 취소 `unFlower(r, c)`로 다섯 좌표 방문 처리 취소.
+    - 조합을 구하는 DFS 탐색에 있어서, `0`부터 `N * N`을 최대로, 각 좌표를 하나의 인덱스로 나타내었다.
+        - 해당 인덱스는 `N`으로 나눈 값이 행, `N`으로 나머지 연산을 한 값이 열이 된다.
 
 ## 다른 코드
 
@@ -131,6 +141,87 @@ public class Solution {
     }
 
     static void eraseFlower(int r, int c) {
+        vis[r][c] = false;
+        for (int i = 0; i < 4; i++) {
+            int nr = r + dr[i];
+            int nc = c + dc[i];
+            vis[nr][nc] = false;
+        }
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    static int N, ans = Integer.MAX_VALUE;
+    static int[][] board;
+    static int[] dr = {0, 0, 1, -1}, dc = {1, -1, 0, 0};
+    static boolean[][] vis;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        board = new int[N][N];
+        vis = new boolean[N][N];
+        for (int i = 0; i < N; i++) {
+            String[] tok = br.readLine().split(" ");
+            for (int j = 0; j < N; j++) {
+                board[i][j] = Integer.parseInt(tok[j]);
+            }
+        }
+
+        dfs(0, 0, 0);
+
+        System.out.println(ans);
+    }
+
+    static void dfs(int dep, int idx, int sum) {
+        if (dep == 3) {
+            ans = Math.min(ans, sum);
+            return;
+        }
+
+        for (int i = idx; i < N * N; i++) {
+            int r = i / N;
+            int c = i % N;
+            if (isValid(r, c)) {
+                int tmp = flower(r, c);
+                dfs(dep + 1, i + 1, sum + tmp);
+                unFlower(r, c);
+            }
+        }
+    }
+
+    static boolean isValid(int r, int c) {
+        if (vis[r][c]) return false;
+        for (int i = 0; i < 4; i++) {
+            int nr = r + dr[i];
+            int nc = c + dc[i];
+            if (nr < 0 || nc < 0 || nr >= N || nc >= N || vis[nr][nc]) return false;
+        }
+        return true;
+    }
+
+    static int flower(int r, int c) {
+        int ret = board[r][c];
+        vis[r][c] = true;
+        for (int i = 0; i < 4; i++) {
+            int nr = r + dr[i];
+            int nc = c + dc[i];
+            ret += board[nr][nc];
+            vis[nr][nc] = true;
+        }
+        return ret;
+    }
+
+    static void unFlower(int r, int c) {
         vis[r][c] = false;
         for (int i = 0; i < 4; i++) {
             int nr = r + dr[i];
