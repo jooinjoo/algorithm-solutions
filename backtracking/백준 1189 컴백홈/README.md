@@ -45,6 +45,10 @@ DFS 탐색을 통해 가능한 지점만 골라가는 백트래킹 기법으로 
         - `dfs()`를 재귀하며 좌표가 목표 지점에 다다랐을 때, 걸린 거리를 체크.
             - 거리가 `K`와 같다면 1, 그렇지 않으면 0 리턴.
         - 재귀가 끝나면 현재 좌표에서 가능한 경우의 수를 전부 더해 리턴.
+- 25.8.17. 다시 푼 방법:
+    - DFS 탐색을 통해 시작 지점부터 종료 지점까지 `K`만큼 거리가 소요된 거리 수를 카운팅.
+        - `dfs()`함수의 재귀를 통해, 동서남북으로 방문하지 않은 지점만 방문하되, 목표 지점에 도착했을 때 종료하도록 기저사례 설정.
+        - 함수 재귀 이후 다른 경로로는 다시 방문할 수 있도록 원상복구.
 
 ## 다른 코드
 
@@ -102,6 +106,59 @@ public class Solution {
             vis[nr][nc] = 0;
         }
         return ret;
+    }
+}
+```
+
+## 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    static int R, C, K, ans = 0;
+    static char[][] board;
+    static int[][] vis;
+    static int[] dr = {0, 0, 1, -1}, dc = {1, -1, 0, 0};
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String[] tok = br.readLine().split(" ");
+        R = Integer.parseInt(tok[0]);
+        C = Integer.parseInt(tok[1]);
+        K = Integer.parseInt(tok[2]);
+        board = new char[R][C];
+        vis = new int[R][C];
+        for (int i = 0; i < R; i++) {
+            String input = br.readLine();
+            for (int j = 0; j < C; j++) {
+                board[i][j] = input.charAt(j);
+            }
+        }
+
+        vis[R - 1][0] = 1;
+        dfs(R - 1, 0, 1);
+
+        System.out.println(ans);
+    }
+
+    static void dfs(int r, int c, int cnt) {
+        if (r == 0 && c == C - 1) {
+            if (cnt == K) ans++;
+            return;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            int nr = r + dr[i];
+            int nc = c + dc[i];
+            if (nr < 0 || nc < 0 || nr >= R || nc >= C || board[nr][nc] != '.' || vis[nr][nc] != 0) continue;
+            vis[nr][nc] = vis[r][c] + 1;
+            dfs(nr, nc, cnt + 1);
+            vis[nr][nc] = 0;
+        }
     }
 }
 ```
