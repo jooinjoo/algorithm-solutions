@@ -68,6 +68,12 @@ $c_i$와 같이 주어진다. 식재료의 번호는 1부터 시작한다.
     - 비트마스킹을 통해 식재료의 조합을 구할 수 있도록 시도하였다.
         - 해당 식재료를 선택하거나, 선택하지 않거나 두 가지 경우의 수인 경우 비트마스킹이 방문 처리에 훨씬 유리한 것 같다.
         - 유의할 점으로는 현재 조합 상태인 `int cur`이 10진수로 표현된 값이므로 `Integer.toBinaryString(cur)`을 통해 변환하여 방문처리를 확인하는 것이 중요.
+- 25.9.14. 다시 푼 방법:
+    - 비트마스킹을 통해 조합할 수 있는 모든 조합을 탐색한다.
+        - 각 조합마다 최소 식재료를 만족하는지, 검사한 뒤 만족하면 총 식재료가 이전까지 최소 식재료보다 적은지 검사.
+        - 같으면 새로운 조합에 추가, 더 적으면 `sum`을 최솟값으로 갱신하며 조합에 추가.
+
+## 다른 코드
 
 ```java
 import java.io.BufferedReader;
@@ -141,6 +147,83 @@ public class Solution {
     static boolean isValid() {
         for (int i = 0; i < 4; i++) {
             if (arr[i] > tmp[i]) return false;
+        }
+        return true;
+    }
+}
+```
+
+### 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Collections;
+
+public class Solution {
+
+    static int N, sum = Integer.MAX_VALUE;
+    static int[] goal, tmp;
+    static int[][] vals;
+    static ArrayList<String> ret;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        N = Integer.parseInt(br.readLine());
+        goal = new int[4];
+        String[] tok = br.readLine().split(" ");
+        for (int i = 0; i < 4; i++) {
+            goal[i] = Integer.parseInt(tok[i]);
+        }
+        vals = new int[N][5];
+        for (int i = 0; i < N; i++) {
+            tok = br.readLine().split(" ");
+            for (int j = 0; j < 5; j++) {
+                vals[i][j] = Integer.parseInt(tok[j]);
+            }
+        }
+        ret = new ArrayList<>();
+
+        // 각 모든 경우의 수 조합 구한 뒤
+        for (int i = 1; i < (1 << N); i++) {
+            tmp = new int[5];
+            for (int j = 0; j < N; j++) {
+                if ((i & (1 << j)) > 0) {
+                    for (int k = 0; k < tmp.length; k++) {
+                        tmp[k] += vals[j][k];
+                    }
+                }
+            }
+
+            if (check() && tmp[4] <= sum) {
+                if (tmp[4] < sum) ret = new ArrayList<>();
+                sum = tmp[4];
+                StringBuilder s = new StringBuilder();
+                for (int j = 0; j < N; j++) {
+                    if ((i & (1 << j)) > 0) {
+                        s.append(j + 1).append(" ");
+                    }
+                }
+                ret.add(s.toString());
+            }
+        }
+
+        Collections.sort(ret);
+
+        if (sum == Integer.MAX_VALUE) {
+            System.out.println(-1);
+        } else {
+            sb.append(sum).append("\n").append(ret.get(0));
+            System.out.println(sb.toString());
+        }
+    }
+
+    static boolean check() {
+        for (int i = 0; i < 4; i++) {
+            if (tmp[i] < goal[i]) return false;
         }
         return true;
     }
