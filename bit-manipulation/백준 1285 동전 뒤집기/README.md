@@ -55,6 +55,14 @@ N2개의 동전들의 초기 상태가 주어질 때, 한 행 또는 한 열에 
     - 이후 `dfs(idx)`를 재귀하며, 해당 `idx`에 해당하는 행을 뒤집지 않거나, 뒤집은 상태로 DFS 탐색.
         - 행을 뒤집을 땐, 매 열마다 루프하며 값을 바꾸는 게 아니라 `map[idx] = ~map[idx]`로 간단히 가능.
     - 그리고 모든 행에 대한 뒤집기 탐색이 끝나면, (...001) 부터 (1...00)까지 해당 열을 기준으로, 각 행마다 뒤집어진 개수를 카운팅하며 최솟값에 갱신.
+- 25.9.22. 다시 푼 방법:
+    - 각 행 별로 뒤집은 동전의 상태를 비트마스킹 `int[] vals`에 표기.
+        - 뒷면인 `T`인 경우에만 1로 표기하여, 10진수로 저장한다.
+    - 이후 메서드 `dfs(idx)`를 재귀하여 각 행 별로 뒤집거나, 뒤집지 않거나 모든 경우를 탐색.
+        - `idx`는 몇 번째 행을 의미한다. 해당 행을 뒤집지 않고 다음 행으로 넘어가거나, 뒤집고 넘어가는 경우 두 가지가 존재.
+        - `idx`가 `N`과 같아지면 모든 행을 지난 것이므로 해당 동전 상태를 검사한다.
+            - 이젠 각 열 별로 `T`인 경우가 몇 개인지 계산하여, 해당 열의 뒷면 개수가 앞면 개수보다 많은 경우 뒤집는다고 생각.
+            - 이렇게 하면 이미 행은 모두 뒤집은 상태이고, 열을 뒤집거나 뒤집지 않거나는 최소의 뒷면 개수를 구해야하기 때문에 정해져있다.
 
 ## 다른 코드
 
@@ -101,6 +109,57 @@ public class Solution {
 
         dfs(idx + 1);
         map[idx] = ~map[idx];
+        dfs(idx + 1);
+    }
+}
+```
+
+### 다시 푼 코드
+
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Solution {
+
+    static int N, ret;
+    static int[] vals;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        ret = N * N;
+        vals = new int[N];
+        for (int i = 0; i < N; i++) {
+            String s = br.readLine();
+            for (int j = 0; j < N; j++) {
+                if (s.charAt(j) == 'T') {
+                    vals[i] += (int) Math.pow(2, j);
+                }
+            }
+        }
+
+        dfs(0);
+        System.out.println(ret);
+    }
+
+    static void dfs(int idx) {
+        if (idx == N) {
+            int cnt = 0;
+            for (int i = 1; i < (1 << N); i *= 2) {
+                int tmp = 0;
+                for (int j = 0; j < N; j++) {
+                    if ((i & vals[j]) > 0) tmp++;
+                }
+                cnt += Math.min(tmp, N - tmp);
+            }
+            ret = Math.min(ret, cnt);
+            return;
+        }
+
+        dfs(idx + 1);
+        vals[idx] = ~vals[idx];
         dfs(idx + 1);
     }
 }
